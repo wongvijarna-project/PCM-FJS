@@ -356,7 +356,7 @@ https://script.google.com/macros/s/AKfycbyVjuc8ogZjxUtu7zd_7wu44FYa7C-nEe9CvFBZ8
             populateYearFilter();
             updateDashboard();
             
-            if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
+            if (googleScriptUrl && !googleScriptUrl.includes("https://script.google.com/macros/s/AKfycbyVjuc8ogZjxUtu7zd_7wu44FYa7C-nEe9CvFBZ87m5blxuhKO8qS6lsJICOJzzFWaV/exec")) {
                 fetchDataFromGoogleSheet();
             }
         };
@@ -697,7 +697,7 @@ https://script.google.com/macros/s/AKfycbyVjuc8ogZjxUtu7zd_7wu44FYa7C-nEe9CvFBZ8
             populateYearFilter();
             updateDashboard();
             
-            if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
+            if (googleScriptUrl && !googleScriptUrl.includes("https://script.google.com/macros/s/AKfycbyVjuc8ogZjxUtu7zd_7wu44FYa7C-nEe9CvFBZ87m5blxuhKO8qS6lsJICOJzzFWaV/exec")) {
                 sendDataToGoogleSheet(projData);
             } else {
                 showAlert("บันทึกสำเร็จ", "บันทึกข้อมูลเรียบร้อยแล้ว (สำรองในเครื่อง)", "success");
@@ -718,7 +718,7 @@ https://script.google.com/macros/s/AKfycbyVjuc8ogZjxUtu7zd_7wu44FYa7C-nEe9CvFBZ8
             populateYearFilter();
             updateDashboard();
             
-            if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
+            if (googleScriptUrl && !googleScriptUrl.includes("https://script.google.com/macros/s/AKfycbyVjuc8ogZjxUtu7zd_7wu44FYa7C-nEe9CvFBZ87m5blxuhKO8qS6lsJICOJzzFWaV/exec")) {
                 sendDataToGoogleSheet(deletePayload);
             } else {
                 showAlert("ลบสำเร็จ", "ลบโครงการออกจากระบบแล้ว", "success");
@@ -865,7 +865,7 @@ https://script.google.com/macros/s/AKfycbyVjuc8ogZjxUtu7zd_7wu44FYa7C-nEe9CvFBZ8
         }
 
         function fetchDataFromGoogleSheet() {
-            if (!googleScriptUrl || googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) return;
+            if (!googleScriptUrl || googleScriptUrl.includes("https://script.google.com/macros/s/AKfycbyVjuc8ogZjxUtu7zd_7wu44FYa7C-nEe9CvFBZ87m5blxuhKO8qS6lsJICOJzzFWaV/exec")) return;
             const syncStatus = document.getElementById('sync-status');
             syncStatus.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span><span>กำลังซิงค์ข้อมูล...</span>`;
 
@@ -902,7 +902,7 @@ https://script.google.com/macros/s/AKfycbyVjuc8ogZjxUtu7zd_7wu44FYa7C-nEe9CvFBZ8
         }
 
         function sendDataToGoogleSheet(projData) {
-            if (!googleScriptUrl || googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) return;
+            if (!googleScriptUrl || googleScriptUrl.includes("https://script.google.com/macros/s/AKfycbyVjuc8ogZjxUtu7zd_7wu44FYa7C-nEe9CvFBZ87m5blxuhKO8qS6lsJICOJzzFWaV/exec")) return;
             let payload = { ...projData };
             if (payload.stepDurations) payload.stepDurations = JSON.stringify(payload.stepDurations);
             if (payload.stepInputModes) payload.stepInputModes = JSON.stringify(payload.stepInputModes);

@@ -672,7 +672,7 @@
         }
 
         function deleteProject(id) {
-            if (prompt("กรุณากรอกรหัสผ่าน (1698) เพื่อยืนยันการลบ:") !== "1698") return;
+            if (prompt("กรุณากรอกรหัสผ่าน (xxxx) เพื่อยืนยันการลบ:") !== "1698") return;
             projects = projects.filter(p => String(p.id) !== String(id));
             saveToLocalStorage();
             populateYearFilter();

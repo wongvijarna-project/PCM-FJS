@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard ติดตามสถานะโครงการ - ฝ่ายบริหารจัดการน้ำสูญเสีย</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Prompt Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+        .sidebar-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Header -->
+    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-[98%] mx-auto px-4 py-3.5 flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-800/80 p-2.5 rounded-xl text-blue-200 border border-blue-700 shadow-inner">
+                    <i class="fa-solid fa-water text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold tracking-wide">ฝ่ายบริหารจัดการน้ำสูญเสีย</h1>
+                    <p class="text-xs text-blue-200">ระบบ Dashboard ติดตามสถานะโครงการสัญญาจ้างและการจัดหา</p>
+                </div>
+            </div>
+
+            <!-- Action Toolbar Buttons -->
+            <div class="flex items-center flex-wrap justify-center md:justify-end gap-2 w-full md:w-auto">
+                <!-- Sync Status Indicator -->
+                <div id="sync-status" onclick="openSyncSettingModal()" class="text-xs px-3 py-1.5 rounded-xl bg-blue-950/60 text-blue-200 flex items-center gap-2 border border-blue-700/60 shadow-sm cursor-pointer hover:bg-blue-900 transition" title="คลิกเพื่อตั้งค่าการเชื่อมต่อ / สลับโหมด Local">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                    <span id="sync-text">ข้อมูลในเครื่อง (Local)</span>
+                </div>
+
+                <!-- Toggle Sidebar Button -->
+                <button type="button" onclick="toggleSidebar()" class="bg-blue-800 hover:bg-blue-700 text-white text-xs md:text-sm font-medium px-3.5 py-2 rounded-xl border border-blue-700 shadow-sm transition flex items-center gap-2 cursor-pointer active:scale-95" title="ซ่อน/แสดงแถบตัวกรอง">
+                    <i class="fa-solid fa-sliders text-blue-300"></i>
+                    <span>ซ่อน/แสดงตัวกรอง</span>
+                </button>
+
+                <!-- Manage Holidays Button -->
+                <button type="button" onclick="openHolidayModal()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs md:text-sm font-medium px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-2 cursor-pointer active:scale-95" title="จัดการวันหยุดนักขัตฤกษ์และวันหยุดพิเศษ">
+                    <i class="fa-solid fa-calendar-days text-amber-200"></i>
+                    <span>จัดการวันหยุด</span>
+                </button>
+
+                <!-- Add Project Button -->
+                <button type="button" onclick="openProjectModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs md:text-sm font-medium px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-2 cursor-pointer active:scale-95">
+                    <i class="fa-solid fa-plus text-emerald-200"></i>
+                    <span>เพิ่มโครงการใหม่</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="max-w-[98%] mx-auto px-4 py-6 flex-1 w-full flex flex-col lg:flex-row gap-6 items-start">
+        
+        <!-- Left Filter Sidebar -->
+        <aside id="filter-sidebar" class="sidebar-transition w-full lg:w-72 shrink-0 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 h-fit flex flex-col gap-4 sticky top-20">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 class="font-bold text-slate-700 flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-filter text-blue-600"></i> ตัวกรองข้อมูล
+                </h2>
+                <button type="button" onclick="resetFilters()" class="text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium cursor-pointer">
+                    <i class="fa-solid fa-arrow-rotate-left"></i> ล้างค่า
+                </button>
+            </div>
+
+            <!-- Search Field -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">ค้นหาโครงการ / เลขที่สัญญา</label>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                    <input type="text" id="filter-search" oninput="applyFilters()" placeholder="พิมพ์ค้นหา..." class="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white transition">
+                </div>
+            </div>
+
+            <!-- Budget Year Filter -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">ปีงบประมาณ</label>
+                <select id="filter-year" onchange="applyFilters()" class="w-full py-2 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white transition">
+                    <option value="">ทั้งหมด</option>
+                </select>
+            </div>
+
+            <!-- Budget Type Filter -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">ประเภทงบประมาณ</label>
+                <select id="filter-budget-type" onchange="applyFilters()" class="w-full py-2 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white transition">
+                    <option value="">ทั้งหมด</option>
+                    <option value="งบทำการ">งบทำการ</option>
+                    <option value="งบลงทุน">งบลงทุน</option>
+                </select>
+            </div>
+
+            <!-- Work Type Filter -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">ประเภทงาน</label>
+                <select id="filter-work-type" onchange="applyFilters()" class="w-full py-2 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white transition">
+                    <option value="">ทั้งหมด</option>
+                    <option value="ซื้อ">ซื้อ</option>
+                    <option value="จ้าง">จ้าง</option>
+                    <option value="จ้างก่อสร้าง">จ้างก่อสร้าง</option>
+                    <option value="เช่า">เช่า</option>
+                </select>
+            </div>
+
+            <!-- Procurement Method Filter -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">วิธีการจัดหา</label>
+                <select id="filter-procurement" onchange="applyFilters()" class="w-full py-2 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 focus:bg-white transition">
+                    <option value="">ทั้งหมด</option>
+                    <option value="วิธี E-bidding">วิธี E-bidding</option>
+                    <option value="วิธีเฉพาะเจาะจงไม่เกิน 5 แสนบาท">วิธีเฉพาะเจาะจงไม่เกิน 5 แสนบาท</option>
+                </select>
+            </div>
+        </aside>
+
+        <!-- Main Content Section -->
+        <main class="flex-1 flex flex-col gap-6 w-full min-w-0">
+            <!-- KPI Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">จำนวนโครงการทั้งหมด</p>
+                        <h3 id="kpi-total" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                    </div>
+                    <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg shadow-inner">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">งบประมาณรวม (บาท)</p>
+                        <h3 id="kpi-budget" class="text-xl font-bold text-slate-800 mt-1">0.00</h3>
+                    </div>
+                    <div class="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg shadow-inner">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-500 font-medium">สถานะระบบ</p>
+                        <h3 class="text-base font-bold text-blue-900 mt-1 flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> พร้อมใช้งาน
+                        </h3>
+                    </div>
+                    <div class="w-11 h-11 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-lg shadow-inner">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Matrix Container -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col flex-1 overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-table-cells text-blue-600"></i> รายการโครงการและสถานะแยกตามขั้นตอน
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">คำนวณวันทำการเว้นวันหยุดเสาร์-อาทิตย์ วันหยุดนักขัตฤกษ์ และวันหยุดพิเศษที่บันทึกไว้</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="fetchDataFromGoogleSheet()" id="sync-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-rotate text-slate-500"></i> โหลดข้อมูลใหม่
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Matrix List Render -->
+                <div id="projects-matrix-container" class="p-5 space-y-6 overflow-x-auto flex-1 bg-slate-50/50">
+                    <!-- Dynamic Matrix Content Inserted Here -->
+                </div>
+
+                <!-- Footer Legend -->
+                <div class="p-4 border-t border-slate-200 bg-white text-xs text-slate-600 space-y-1">
+                    <div class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> คำอธิบายสัญลักษณ์ตาราง:</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px]">
+                        <p>• <strong class="text-blue-900">แผน/คาดการณ์:</strong> คำนวณวันเสร็จสิ้นของแต่ละขั้นตอนอัตโนมัติ</p>
+                        <p>• <strong class="text-emerald-700">แล้วเสร็จจริง:</strong> วันที่ผู้ใช้งานบันทึกเสร็จจริง (สีเขียว)</p>
+                        <p>• <strong class="text-rose-600">สถานะ:</strong> แสดง ล่าช้า (สีแดง) / เร็วกว่ากำหนด (สีเขียว) / ตามกำหนด</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Manage Holidays Modal -->
+    <div id="holiday-modal" style="display: none;" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl overflow-hidden my-8">
+            <div class="bg-amber-700 text-white p-4 flex justify-between items-center">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days"></i> ระบบจัดการวันหยุดและคำนวณวันทำการ
+                </h3>
+                <button type="button" onclick="closeHolidayModal()" class="text-amber-200 hover:text-white text-xl cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <div class="bg-amber-50/70 border-b border-amber-200/80 px-4 pt-2 flex gap-2 text-xs font-semibold overflow-x-auto">
+                <button type="button" onclick="switchHolidayTab('list')" id="htab-btn-list" class="px-3 py-2 rounded-t-xl bg-white text-amber-900 border-t border-x border-amber-200 shadow-xs cursor-pointer shrink-0">
+                    <i class="fa-solid fa-list-check mr-1"></i> รายการวันหยุดในระบบ
+                </button>
+                <button type="button" onclick="switchHolidayTab('tester')" id="htab-btn-tester" class="px-3 py-2 rounded-t-xl text-amber-800 hover:bg-amber-100/50 transition cursor-pointer shrink-0">
+                    <i class="fa-solid fa-calculator mr-1"></i> ทดสอบคำนวณวันทำการ
+                </button>
+                <button type="button" onclick="switchHolidayTab('import')" id="htab-btn-import" class="px-3 py-2 rounded-t-xl text-amber-800 hover:bg-amber-100/50 transition cursor-pointer shrink-0">
+                    <i class="fa-solid fa-file-import mr-1"></i> สำรองข้อมูล / แชร์วันหยุด
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+                <!-- Tab 1: Holiday List & Add Form -->
+                <div id="htab-content-list" class="space-y-4">
+                    <form id="holiday-form" onsubmit="handleHolidaySubmit(event)" class="bg-amber-50 border border-amber-200 p-4 rounded-xl space-y-3">
+                        <h4 class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus-circle text-amber-600"></i> เพิ่มวันหยุดเพิ่มเติม / วันหยุดพิเศษ
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-amber-800 mb-1">วันที่หยุด <span class="text-rose-500">*</span></label>
+                                <input type="date" id="holiday-date" required class="w-full px-3 py-1.5 text-xs bg-white border border-amber-300 rounded-xl focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-amber-800 mb-1">ชื่อวันหยุด / รายละเอียด <span class="text-rose-500">*</span></label>
+                                <input type="text" id="holiday-desc" required placeholder="เช่น วันหยุดชดเชยพิเศษประจำปี" class="w-full px-3 py-1.5 text-xs bg-white border border-amber-300 rounded-xl focus:outline-none focus:border-amber-500">
+                            </div>
+                        </div>
+                        <div class="flex justify-end pt-1">
+                            <button type="submit" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-white text-xs font-medium rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-floppy-disk"></i> เพิ่มวันหยุดนี้
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Filter & Toolbar -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div class="flex items-center gap-2 w-full sm:w-auto">
+                            <label class="text-xs font-semibold text-slate-600 shrink-0">ปี (พ.ศ.):</label>
+                            <select id="holiday-year-filter" onchange="renderHolidayList()" class="py-1 px-2.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500">
+                                <option value="">ทุกปี</option>
+                                <option value="2567">2567 (2024)</option>
+                                <option value="2568">2568 (2025)</option>
+                                <option value="2569" selected>2569 (2026)</option>
+                                <option value="2570">2570 (2027)</option>
+                            </select>
+                            <input type="text" id="holiday-search-filter" oninput="renderHolidayList()" placeholder="พิมพ์ค้นหา..." class="py-1 px-3 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 w-full sm:w-40">
+                        </div>
+
+                        <div class="flex items-center gap-2 self-end sm:self-auto">
+                            <button type="button" onclick="resetBuiltinHolidays()" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 font-medium px-3 py-1.5 rounded-xl transition cursor-pointer" title="รีเซ็ตและเปิดใช้งานวันหยุดนักขัตฤกษ์มาตรฐานทั้งหมด">
+                                <i class="fa-solid fa-rotate-left mr-1"></i> โหลดวันหยุดมาตรฐานใหม่
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                <i class="fa-solid fa-calendar-check text-amber-600"></i> รายการวันหยุดที่ใช้งานสำหรับคำนวณวันทำการ
+                            </h4>
+                            <span id="holiday-active-count" class="text-[11px] bg-amber-100 px-2.5 py-0.5 rounded-full text-amber-900 font-semibold">0 วัน</span>
+                        </div>
+                        <div class="border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                    <tr>
+                                        <th class="p-2.5 w-12 text-center">ใช้งาน</th>
+                                        <th class="p-2.5">วันที่ (พ.ศ.)</th>
+                                        <th class="p-2.5">รายละเอียดวันหยุด</th>
+                                        <th class="p-2.5">ประเภท</th>
+                                        <th class="p-2.5 text-center w-16">ลบ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="holiday-tbody">
+                                    <!-- Dynamic Render -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Business Day Tester -->
+                <div id="htab-content-tester" style="display: none;" class="space-y-4">
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-xs space-y-2">
+                        <p class="font-bold text-blue-900"><i class="fa-solid fa-vial-circle-check text-blue-600 mr-1"></i> ทดสอบและตรวจสอบการนับวันทำการ</p>
+                        <p class="text-slate-600">เครื่องมือนี้จะช่วยคุณตรวจสอบว่า หากกำหนดวันเริ่มต้นและจำนวนวัน ระบบจะคำนวณนับข้ามวันหยุดเสาร์-อาทิตย์ และวันหยุดนักขัตฤกษ์อย่างไรบ้าง</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">วันที่เริ่มต้น</label>
+                            <input type="date" id="test-start-date" class="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">จำนวนวัน</label>
+                            <input type="number" min="1" id="test-days" value="10" class="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">ประเภทวัน</label>
+                            <select id="test-type" class="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                                <option value="วันทำการ">วันทำการ (ข้ามเสาร์-อาทิตย์ & วันหยุด)</option>
+                                <option value="วันปฏิทิน">วันปฏิทิน (นับต่อเนื่องทุกวัน)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <button type="button" onclick="testCalculateWorkingDays()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer">
+                            <i class="fa-solid fa-calculator"></i> คำนวณทดสอบ
+                        </button>
+                    </div>
+
+                    <div id="test-result-box" class="pt-2">
+                        <!-- Calculation Result Inserted Here -->
+                    </div>
+                </div>
+
+                <!-- Tab 3: Backup & Import/Export -->
+                <div id="htab-content-import" style="display: none;" class="space-y-4">
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs space-y-2">
+                        <p class="font-bold text-amber-900"><i class="fa-solid fa-file-export mr-1"></i> สำรองข้อมูล / แชร์วันหยุดกับทีมงาน</p>
+                        <p class="text-slate-700">คุณสามารถคัดลอกรหัสวันหยุดเพื่อนำไปใช้อุปกรณ์อื่น หรือนำเข้ารหัสวันหยุดจากเพื่อนร่วมงานได้โดยตรง</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-700">รหัสข้อมูลวันหยุด (JSON Format):</label>
+                        <textarea id="holiday-json-area" rows="6" placeholder='[{"date":"2026-01-01","desc":"วันขึ้นปีใหม่"}]' class="w-full p-3 font-mono text-[11px] bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500"></textarea>
+                    </div>
+
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <button type="button" onclick="exportHolidaysJSON()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium rounded-xl transition cursor-pointer">
+                            <i class="fa-solid fa-copy mr-1"></i> คัดลอกรหัสวันหยุดลง Clipboard
+                        </button>
+                        <button type="button" onclick="importHolidaysJSON()" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-white text-xs font-medium rounded-xl transition cursor-pointer">
+                            <i class="fa-solid fa-file-import mr-1"></i> นำเข้าข้อมูลวันหยุด
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3.5 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button type="button" onclick="closeHolidayModal()" class="px-4 py-1.5 text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl transition cursor-pointer">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Form Modal -->
+    <div id="project-modal" style="display: none;" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden my-6">
+            <div class="bg-blue-900 text-white p-4 flex justify-between items-center">
+                <h3 id="modal-title" class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-file-contract"></i> เพิ่มโครงการสัญญาจ้างใหม่
+                </h3>
+                <button type="button" onclick="closeProjectModal()" class="text-blue-200 hover:text-white text-xl cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <form id="project-form" onsubmit="handleFormSubmit(event)" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+                <input type="hidden" id="edit-index" value="">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">เลขที่โครงการ / สัญญา <span class="text-rose-500">*</span></label>
+                        <input type="text" id="proj-no" required placeholder="เช่น WLM-2570-001" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">ปีงบประมาณ <span class="text-rose-500">*</span></label>
+                        <input type="number" id="proj-year" required value="2570" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1">ชื่อโครงการ <span class="text-rose-500">*</span></label>
+                    <textarea id="proj-name" required rows="2" placeholder="ระบุชื่อโครงการ..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">ประเภทงบประมาณ <span class="text-rose-500">*</span></label>
+                        <select id="proj-budget-type" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                            <option value="งบทำการ">งบทำการ</option>
+                            <option value="งบลงทุน">งบลงทุน</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">ประเภทงาน <span class="text-rose-500">*</span></label>
+                        <select id="proj-work-type" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                            <option value="ซื้อ">ซื้อ</option>
+                            <option value="จ้าง">จ้าง</option>
+                            <option value="จ้างก่อสร้าง">จ้างก่อสร้าง</option>
+                            <option value="เช่า">เช่า</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">งบประมาณ (บาท) <span class="text-rose-500">*</span></label>
+                        <input type="number" step="0.01" id="proj-budget" required placeholder="0.00" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">วิธีการจัดหา <span class="text-rose-500">*</span></label>
+                        <select id="proj-procurement" onchange="onProcurementChange()" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                            <option value="วิธี E-bidding">วิธี E-bidding</option>
+                            <option value="วิธีเฉพาะเจาะจงไม่เกิน 5 แสนบาท">วิธีเฉพาะเจาะจงไม่เกิน 5 แสนบาท</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">ขั้นตอนปัจจุบัน <span class="text-rose-500">*</span></label>
+                        <select id="proj-current-step" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl space-y-3">
+                    <h4 class="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-check text-emerald-600"></i> กำหนดวันเริ่มต้นและแผนการดำเนินงานแต่ละขั้นตอน
+                    </h4>
+                    <div>
+                        <label class="block text-xs font-medium text-emerald-800 mb-1">วันที่เริ่มต้นโครงการ (ตั้งต้นการคำนวณ)</label>
+                        <input type="date" id="proj-start-date" class="w-full sm:w-60 px-3 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div id="step-planning-container" class="space-y-2 pt-2 border-t border-emerald-200/60">
+                        <!-- Step Rows Populated Dynamically -->
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div>
+                        <h4 class="text-xs font-bold text-amber-900"><i class="fa-solid fa-lock text-amber-600 mr-1"></i> ยืนยันรหัสผ่านก่อนบันทึก</h4>
+                        <p class="text-[11px] text-amber-700">กรอกรหัสผ่าน 4 หลัก (รหัสเริ่มต้น: 0000)</p>
+                    </div>
+                    <div class="w-full sm:w-auto">
+                        <input type="password" id="auth-password" required maxlength="4" placeholder="รหัสผ่าน" class="w-full sm:w-32 px-3 py-1.5 text-xs bg-white border border-amber-300 rounded-xl text-center focus:outline-none focus:border-amber-500 font-bold tracking-widest">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeProjectModal()" class="px-4 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition cursor-pointer">ยกเลิก</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูล
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alert Notification Modal -->
+    <div id="alert-modal" style="display: none;" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5 text-center space-y-4">
+            <div id="alert-icon" class="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <div>
+                <h3 id="alert-title" class="font-bold text-base text-slate-800">แจ้งเตือน</h3>
+                <p id="alert-message" class="text-xs text-slate-500 mt-1">ข้อความแจ้งเตือน...</p>
+            </div>
+            <button type="button" onclick="closeAlert()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-xl transition cursor-pointer">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- Sync Setting Modal -->
+    <div id="sync-setting-modal" style="display: none;" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div class="bg-blue-900 text-white p-4 flex justify-between items-center">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-cloud"></i> ตั้งค่าการเชื่อมต่อและโหมดการทำงาน
+                </h3>
+                <button type="button" onclick="closeSyncSettingModal()" class="text-blue-200 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 text-xs">
+                <div class="bg-blue-50 border border-blue-200 p-3 rounded-xl space-y-2">
+                    <p class="font-bold text-blue-900"><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> โหมดการทำงานระบบ</p>
+                    <p class="text-slate-600">หากยังไม่ได้ตั้งค่า Google Sheets หรือขึ้นแจ้งเตือนซิงค์ค้าง สามารถสลับมาใช้ **"โหมดในเครื่อง (Local Mode)"** ได้ทันที ข้อมูลทั้งหมดจะบันทึกอยู่ในเบราว์เซอร์อย่างปลอดภัย</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block font-semibold text-slate-700">เลือกโหมดการใช้งาน:</label>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="switchToLocalMode()" id="btn-mode-local" class="flex-1 py-2 px-3 rounded-xl border text-center font-medium transition cursor-pointer">
+                            <i class="fa-solid fa-hard-drive mr-1"></i> โหมดในเครื่อง (Local)
+                        </button>
+                        <button type="button" onclick="switchToOnlineMode()" id="btn-mode-online" class="flex-1 py-2 px-3 rounded-xl border text-center font-medium transition cursor-pointer">
+                            <i class="fa-solid fa-cloud-arrow-up mr-1"></i> เชื่อมต่อ Google Sheets
+                        </button>
+                    </div>
+                </div>
+
+                <div id="url-setting-group" class="space-y-1.5 pt-2 border-t border-slate-100">
+                    <label class="block font-semibold text-slate-700">Google Apps Script Web App URL:</label>
+                    <input type="text" id="input-script-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full p-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                    <p class="text-[11px] text-slate-400">ระบุ URL Web App ของ Google Apps Script หากต้องการซิงค์ข้อมูลกับออนไลน์</p>
+                </div>
+            </div>
+            <div class="p-3 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+                <button type="button" onclick="closeSyncSettingModal()" class="px-4 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition cursor-pointer">ปิด</button>
+                <button type="button" onclick="saveSyncSettings()" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition cursor-pointer">บันทึกการตั้งค่า</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic Section -->
+    <script>
+        // ⚠️ วาง URL ของ Google Apps Script Web App หรือตั้งค่าผ่านหน้าเว็บได้
+        let googleScriptUrl = localStorage.getItem('wlm_google_script_url') || "https://script.google.com/macros/s/AKfycbwX3sOfElBfVt_7GLaPWWAwBiXmQtK3qj6BUSMGUt9XqAEOA_jivGzkwL8QO1YTjk0b/exec";
+        let isLocalMode = localStorage.getItem('wlm_mode') === 'local';
+
+        const BUILTIN_THAI_HOLIDAYS = [
+            // 2024 (2567)
+            { date: "2024-01-01", desc: "วันขึ้นปีใหม่" },
+            { date: "2024-02-26", desc: "วันหยุดชดเชยวันมาฆบูชา" },
+            { date: "2024-04-08", desc: "วันหยุดชดเชยวันจักรี" },
+            { date: "2024-04-13", desc: "วันสงกรานต์" },
+            { date: "2024-04-14", desc: "วันสงกรานต์" },
+            { date: "2024-04-15", desc: "วันสงกรานต์" },
+            { date: "2024-04-16", desc: "วันหยุดชดเชยวันสงกรานต์" },
+            { date: "2024-05-01", desc: "วันแรงงานแห่งชาติ" },
+            { date: "2024-05-06", desc: "วันหยุดชดเชยวันฉัตรมงคล" },
+            { date: "2024-05-22", desc: "วันวิสาขบูชา" },
+            { date: "2024-06-03", desc: "วันเฉลิมพระชนมพรรษา สมเด็จพระนางเจ้าฯ พระบรมราชินี" },
+            { date: "2024-07-20", desc: "วันอาสาฬหบูชา" },
+            { date: "2024-07-22", desc: "วันหยุดชดเชยวันเข้าพรรษา" },
+            { date: "2024-07-29", desc: "วันหยุดชดเชยวันเฉลิมพระชนมพรรษา ร.10" },
+            { date: "2024-08-12", desc: "วันแม่แห่งชาติ" },
+            { date: "2024-10-14", desc: "วันหยุดชดเชยวันคล้ายวันสวรรคต ร.9" },
+            { date: "2024-10-23", desc: "วันปิยมหาราช" },
+            { date: "2024-12-05", desc: "วันพ่อแห่งชาติ" },
+            { date: "2024-12-10", desc: "วันรัฐธรรมนูญ" },
+            { date: "2024-12-31", desc: "วันสิ้นปี" },
+
+            // 2025 (2568)
+            { date: "2025-01-01", desc: "วันขึ้นปีใหม่" },
+            { date: "2025-01-02", desc: "วันหยุดพิเศษเพิ่มเติม" },
+            { date: "2025-02-12", desc: "วันมาฆบูชา" },
+            { date: "2025-04-07", desc: "วันหยุดชดเชยวันจักรี" },
+            { date: "2025-04-13", desc: "วันสงกรานต์" },
+            { date: "2025-04-14", desc: "วันสงกรานต์" },
+            { date: "2025-04-15", desc: "วันสงกรานต์" },
+            { date: "2025-04-16", desc: "วันหยุดชดเชยวันสงกรานต์" },
+            { date: "2025-05-01", desc: "วันแรงงานแห่งชาติ" },
+            { date: "2025-05-05", desc: "วันหยุดชดเชยวันฉัตรมงคล" },
+            { date: "2025-05-12", desc: "วันวิสาขบูชา" },
+            { date: "2025-06-03", desc: "วันเฉลิมพระชนมพรรษา สมเด็จพระนางเจ้าฯ พระบรมราชินี" },
+            { date: "2025-07-10", desc: "วันอาสาฬหบูชา" },
+            { date: "2025-07-28", desc: "วันเฉลิมพระชนมพรรษา ร.10" },
+            { date: "2025-08-12", desc: "วันแม่แห่งชาติ" },
+            { date: "2025-10-13", desc: "วันคล้ายวันสวรรคต ร.9" },
+            { date: "2025-10-23", desc: "วันปิยมหาราช" },
+            { date: "2025-12-05", desc: "วันพ่อแห่งชาติ" },
+            { date: "2025-12-10", desc: "วันรัฐธรรมนูญ" },
+            { date: "2025-12-31", desc: "วันสิ้นปี" },
+
+            // 2026 (2569)
+            { date: "2026-01-01", desc: "วันขึ้นปีใหม่" },
+            { date: "2026-01-02", desc: "วันหยุดพิเศษเพิ่มเติม" },
+            { date: "2026-03-03", desc: "วันมาฆบูชา" },
+            { date: "2026-04-06", desc: "วันจักรี" },
+            { date: "2026-04-13", desc: "วันสงกรานต์" },
+            { date: "2026-04-14", desc: "วันสงกรานต์" },
+            { date: "2026-04-15", desc: "วันสงกรานต์" },
+            { date: "2026-05-01", desc: "วันแรงงานแห่งชาติ" },
+            { date: "2026-05-04", desc: "วันฉัตรมงคล" },
+            { date: "2026-06-01", desc: "วันหยุดชดเชยวันวิสาขบูชา" },
+            { date: "2026-06-03", desc: "วันเฉลิมพระชนมพรรษา สมเด็จพระนางเจ้าฯ พระบรมราชินี" },
+            { date: "2026-07-28", desc: "วันเฉลิมพระชนมพรรษา ร.10" },
+            { date: "2026-07-29", desc: "วันอาสาฬหบูชา" },
+            { date: "2026-08-12", desc: "วันแม่แห่งชาติ" },
+            { date: "2026-10-13", desc: "วันคล้ายวันสวรรคต ร.9" },
+            { date: "2026-10-23", desc: "วันปิยมหาราช" },
+            { date: "2026-12-07", desc: "วันหยุดชดเชยวันพ่อแห่งชาติ" },
+            { date: "2026-12-10", desc: "วันรัฐธรรมนูญ" },
+            { date: "2026-12-31", desc: "วันสิ้นปี" },
+
+            // 2027 (2570)
+            { date: "2027-01-01", desc: "วันขึ้นปีใหม่" },
+            { date: "2027-02-22", desc: "วันหยุดชดเชยวันมาฆบูชา" },
+            { date: "2027-04-06", desc: "วันจักรี" },
+            { date: "2027-04-13", desc: "วันสงกรานต์" },
+            { date: "2027-04-14", desc: "วันสงกรานต์" },
+            { date: "2027-04-15", desc: "วันสงกรานต์" },
+            { date: "2027-05-03", desc: "วันหยุดชดเชยวันแรงงานแห่งชาติ" },
+            { date: "2027-05-04", desc: "วันฉัตรมงคล" },
+            { date: "2027-05-20", desc: "วันวิสาขบูชา" },
+            { date: "2027-06-03", desc: "วันเฉลิมพระชนมพรรษา สมเด็จพระนางเจ้าฯ พระบรมราชินี" },
+            { date: "2027-07-19", desc: "วันหยุดชดเชยวันอาสาฬหบูชา" },
+            { date: "2027-07-28", desc: "วันเฉลิมพระชนมพรรษา ร.10" },
+            { date: "2027-08-12", desc: "วันแม่แห่งชาติ" },
+            { date: "2027-10-13", desc: "วันคล้ายวันสวรรคต ร.9" },
+            { date: "2027-10-25", desc: "วันหยุดชดเชยวันปิยมหาราช" },
+            { date: "2027-12-06", desc: "วันหยุดชดเชยวันพ่อแห่งชาติ" },
+            { date: "2027-12-10", desc: "วันรัฐธรรมนูญ" },
+            { date: "2027-12-31", desc: "วันสิ้นปี" }
+        ];
+
+        let holidayMasterMap = {};
+
+        function initHolidayMaster() {
+            try {
+                const saved = localStorage.getItem('wlm_holidays_master_v2');
+                if (saved) {
+                    holidayMasterMap = JSON.parse(saved);
+                } else {
+                    resetBuiltinHolidays(false);
+                }
+            } catch(e) {
+                console.error("Init holidays error:", e);
+                resetBuiltinHolidays(false);
+            }
+        }
+
+        function saveHolidayMaster() {
+            try {
+                localStorage.setItem('wlm_holidays_master_v2', JSON.stringify(holidayMasterMap));
+            } catch(e) {
+                console.error("Save holidays error:", e);
+            }
+        }
+
+        function resetBuiltinHolidays(alertUser = true) {
+            holidayMasterMap = {};
+            BUILTIN_THAI_HOLIDAYS.forEach(item => {
+                const iso = toISODateString(item.date);
+                if (iso) {
+                    holidayMasterMap[iso] = {
+                        desc: item.desc,
+                        enabled: true,
+                        isCustom: false
+                    };
+                }
+            });
+            saveHolidayMaster();
+            if (alertUser) {
+                renderHolidayList();
+                updateDashboard();
+                showAlert("รีเซ็ตวันหยุดสำเร็จ", "โหลดวันหยุดนักขัตฤกษ์มาตรฐานเรียบร้อยแล้ว", "success");
+            }
+        }
+
+        // --- Safe Date Parsing Helpers (Noon Lock Prevents Timezone Jump) ---
+        function parseDateSafe(dateInput) {
+            if (!dateInput) return null;
+            if (dateInput instanceof Date) {
+                if (isNaN(dateInput.getTime())) return null;
+                return new Date(dateInput.getFullYear(), dateInput.getMonth(), dateInput.getDate(), 12, 0, 0);
+            }
+            
+            let str = String(dateInput).trim();
+            if (!str) return null;
+
+            let isoMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+            if (isoMatch) {
+                let y = parseInt(isoMatch[1], 10);
+                let m = parseInt(isoMatch[2], 10) - 1;
+                let d = parseInt(isoMatch[3], 10);
+                if (y > 2400) y -= 543; // Thai BE to AD
+                let date = new Date(y, m, d, 12, 0, 0);
+                return isNaN(date.getTime()) ? null : date;
+            }
+
+            let dmyMatch = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+            if (dmyMatch) {
+                let d = parseInt(dmyMatch[1], 10);
+                let m = parseInt(dmyMatch[2], 10) - 1;
+                let y = parseInt(dmyMatch[3], 10);
+                if (y > 2400) y -= 543;
+                let date = new Date(y, m, d, 12, 0, 0);
+                return isNaN(date.getTime()) ? null : date;
+            }
+
+            let parsed = new Date(str);
+            if (!isNaN(parsed.getTime())) {
+                let y = parsed.getFullYear();
+                if (y > 2400) y -= 543;
+                return new Date(y, parsed.getMonth(), parsed.getDate(), 12, 0, 0);
+            }
+
+            return null;
+        }
+
+        function formatThaiDate(dateInput) {
+            const d = parseDateSafe(dateInput);
+            if (!d) return String(dateInput || "ไม่ระบุวันที่");
+            return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function toISODateString(dateInput) {
+            const d = parseDateSafe(dateInput);
+            if (!d) return "";
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function isThaiHoliday(dateObj) {
+            const iso = toISODateString(dateObj);
+            if (!iso) return false;
+            const item = holidayMasterMap[iso];
+            return item && item.enabled !== false;
+        }
+
+        function getHolidayInfo(dateObj) {
+            const iso = toISODateString(dateObj);
+            if (!iso) return null;
+            const item = holidayMasterMap[iso];
+            if (item && item.enabled !== false) return item;
+            return null;
+        }
+
+        function addDaysToDate(dateStr, days, dayType) {
+            let d = parseDateSafe(dateStr);
+            if (!d) d = parseDateSafe(new Date());
+            d.setHours(12, 0, 0, 0);
+
+            let targetDays = parseInt(days, 10) || 0;
+            if (targetDays <= 0) return d;
+
+            if (dayType === "วันทำการ") {
+                let added = 0;
+                let maxSafety = 0;
+                while (added < targetDays && maxSafety < 1000) {
+                    maxSafety++;
+                    d.setDate(d.getDate() + 1);
+                    const dayOfWeek = d.getDay();
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isThaiHoliday(d)) {
+                        added++;
+                    }
+                }
+            } else {
+                d.setDate(d.getDate() + targetDays);
+            }
+            return d;
+        }
+
+        function switchHolidayTab(tabKey) {
+            ['list', 'tester', 'import'].forEach(k => {
+                const content = document.getElementById(`htab-content-${k}`);
+                const btn = document.getElementById(`htab-btn-${k}`);
+                if (content && btn) {
+                    if (k === tabKey) {
+                        content.style.display = 'block';
+                        btn.className = "px-3 py-2 rounded-t-xl bg-white text-amber-900 font-bold border-t border-x border-amber-200 shadow-xs cursor-pointer shrink-0";
+                    } else {
+                        content.style.display = 'none';
+                        btn.className = "px-3 py-2 rounded-t-xl text-amber-800 font-medium hover:bg-amber-100/50 transition cursor-pointer shrink-0";
+                    }
+                }
+            });
+
+            if (tabKey === 'tester') {
+                document.getElementById('test-start-date').value = toISODateString(new Date());
+            } else if (tabKey === 'import') {
+                exportHolidaysJSON(false);
+            }
+        }
+
+        function openHolidayModal() {
+            initHolidayMaster();
+            switchHolidayTab('list');
+            renderHolidayList();
+            document.getElementById('holiday-modal').style.display = 'flex';
+        }
+
+        function closeHolidayModal() {
+            document.getElementById('holiday-modal').style.display = 'none';
+        }
+
+        function handleHolidaySubmit(event) {
+            event.preventDefault();
+            const rawDate = document.getElementById('holiday-date').value;
+            const desc = document.getElementById('holiday-desc').value.trim();
+
+            const iso = toISODateString(rawDate);
+            if (!iso || !desc) {
+                showAlert("ข้อมูลไม่ครบถ้วน", "กรุณาระบุวันที่และชื่อวันหยุดให้ถูกต้อง", "error");
+                return;
+            }
+
+            holidayMasterMap[iso] = {
+                desc: desc,
+                enabled: true,
+                isCustom: true
+            };
+
+            saveHolidayMaster();
+            document.getElementById('holiday-form').reset();
+            renderHolidayList();
+            updateDashboard();
+
+            if (!isLocalMode && googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") && googleScriptUrl.trim()) {
+                sendHolidayToGoogleSheet({ action: "saveHoliday", date: iso, desc: desc });
+            }
+
+            showAlert("บันทึกวันหยุดสำเร็จ", `เพิ่มวันหยุด "${desc}" (${formatThaiDate(iso)}) เรียบร้อยแล้ว`, "success");
+        }
+
+        function toggleHolidayStatus(isoDate) {
+            if (holidayMasterMap[isoDate]) {
+                holidayMasterMap[isoDate].enabled = !holidayMasterMap[isoDate].enabled;
+                saveHolidayMaster();
+                renderHolidayList();
+                updateDashboard();
+            }
+        }
+
+        function deleteHolidayItem(isoDate) {
+            if (holidayMasterMap[isoDate]) {
+                delete holidayMasterMap[isoDate];
+                saveHolidayMaster();
+                renderHolidayList();
+                updateDashboard();
+
+                if (!isLocalMode && googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") && googleScriptUrl.trim()) {
+                    sendHolidayToGoogleSheet({ action: "deleteHoliday", date: isoDate });
+                }
+            }
+        }
+
+        function renderHolidayList() {
+            const tbody = document.getElementById('holiday-tbody');
+            const countEl = document.getElementById('holiday-active-count');
+            const filterYear = document.getElementById('holiday-year-filter').value;
+            const filterSearch = document.getElementById('holiday-search-filter').value.toLowerCase().trim();
+
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            let activeCount = 0;
+            let keys = Object.keys(holidayMasterMap).sort();
+
+            let rowsHtml = [];
+
+            keys.forEach(iso => {
+                const item = holidayMasterMap[iso];
+                if (!item) return;
+
+                if (item.enabled) activeCount++;
+
+                const d = parseDateSafe(iso);
+                if (!d) return;
+
+                const beYear = String(d.getFullYear() + 543);
+                if (filterYear && beYear !== filterYear) return;
+
+                if (filterSearch && !item.desc.toLowerCase().includes(filterSearch) && !formatThaiDate(iso).includes(filterSearch)) return;
+
+                const isChecked = item.enabled !== false;
+                const badgeClass = item.isCustom ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800";
+                const badgeText = item.isCustom ? "พิเศษ/เพิ่มเอง" : "นักขัตฤกษ์";
+
+                rowsHtml.push(`
+                    <tr class="border-b border-slate-100 hover:bg-amber-50/40 transition">
+                        <td class="p-2.5 text-center">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleHolidayStatus('${iso}')" class="w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500 cursor-pointer">
+                        </td>
+                        <td class="p-2.5 font-bold text-slate-800 shrink-0">${formatThaiDate(iso)}</td>
+                        <td class="p-2.5 text-slate-700 ${!isChecked ? 'line-through text-slate-400' : ''}">${item.desc}</td>
+                        <td class="p-2.5"><span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${badgeClass}">${badgeText}</span></td>
+                        <td class="p-2.5 text-center">
+                            <button type="button" onclick="deleteHolidayItem('${iso}')" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1 rounded transition cursor-pointer" title="ลบวันหยุดนี้">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+
+            if (countEl) countEl.innerText = `${activeCount} วัน`;
+
+            if (rowsHtml.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">ไม่พบรายการวันหยุดตามเงื่อนไขที่เลือก</td></tr>`;
+            } else {
+                tbody.innerHTML = rowsHtml.join('');
+            }
+        }
+
+        function testCalculateWorkingDays() {
+            const startDateInput = document.getElementById('test-start-date').value;
+            const daysInput = parseInt(document.getElementById('test-days').value, 10) || 0;
+            const typeInput = document.getElementById('test-type').value;
+
+            const startD = parseDateSafe(startDateInput);
+            if (!startD) {
+                document.getElementById('test-result-box').innerHTML = '<p class="text-rose-600 font-medium text-xs">กรุณาระบุวันที่เริ่มต้น</p>';
+                return;
+            }
+
+            let curr = new Date(startD.getTime());
+            curr.setHours(12, 0, 0, 0);
+
+            let logs = [];
+            let added = 0;
+            let stepCount = 0;
+
+            if (typeInput === "วันทำการ") {
+                while (added < daysInput && stepCount < 365) {
+                    stepCount++;
+                    curr.setDate(curr.getDate() + 1);
+                    const dow = curr.getDay();
+                    const isWeekend = (dow === 0 || dow === 6);
+                    const holObj = getHolidayInfo(curr);
+
+                    if (isWeekend) {
+                        const dayName = dow === 0 ? "อาทิตย์" : "เสาร์";
+                        logs.push(`<span class="text-rose-500">• ${formatThaiDate(curr)}: วัน${dayName} (ข้าม)</span>`);
+                    } else if (holObj) {
+                        logs.push(`<span class="text-amber-600 font-semibold">• ${formatThaiDate(curr)}: วันหยุด (${holObj.desc}) (ข้าม)</span>`);
+                    } else {
+                        added++;
+                        logs.push(`<span class="text-emerald-600 font-medium">• ${formatThaiDate(curr)}: วันทำการที่ ${added}</span>`);
+                    }
+                }
+            } else {
+                curr.setDate(curr.getDate() + daysInput);
+                logs.push(`<span class="text-emerald-600 font-medium">• นับวันปฏิทินรวม ${daysInput} วัน</span>`);
+            }
+
+            const resultStr = formatThaiDate(curr);
+            document.getElementById('test-result-box').innerHTML = `
+                <div class="bg-white p-3.5 rounded-xl border border-emerald-300 mb-3 shadow-xs">
+                    <p class="text-xs text-slate-500 font-medium">ผลการคำนวณวันเสร็จสิ้นแผน/คาดการณ์:</p>
+                    <p class="text-base font-bold text-emerald-700 mt-0.5">${resultStr} (${toISODateString(curr)})</p>
+                </div>
+                <div class="text-[11px] space-y-1 max-h-48 overflow-y-auto bg-slate-50 p-3 rounded-xl border border-slate-200 leading-relaxed">
+                    <p class="font-bold text-slate-700 mb-1">รายละเอียดขั้นตอนการนับวัน:</p>
+                    ${logs.join('<br>')}
+                </div>
+            `;
+        }
+
+        function exportHolidaysJSON(copyToClip = true) {
+            const list = Object.keys(holidayMasterMap).map(k => ({
+                date: k,
+                desc: holidayMasterMap[k].desc,
+                enabled: holidayMasterMap[k].enabled,
+                isCustom: holidayMasterMap[k].isCustom
+            }));
+
+            const jsonStr = JSON.stringify(list, null, 2);
+            document.getElementById('holiday-json-area').value = jsonStr;
+
+            if (copyToClip) {
+                const area = document.getElementById('holiday-json-area');
+                area.select();
+                document.execCommand('copy');
+                showAlert("คัดลอกสำเร็จ", "คัดลอกรหัสข้อมูลวันหยุดลง Clipboard เรียบร้อยแล้ว", "success");
+            }
+        }
+
+        function importHolidaysJSON() {
+            try {
+                const text = document.getElementById('holiday-json-area').value.trim();
+                if (!text) {
+                    showAlert("ไม่พบข้อมูล", "กรุณาวางรหัสข้อมูลวันหยุด (JSON) ในช่องข้อความ", "error");
+                    return;
+                }
+
+                const parsed = JSON.parse(text);
+                if (!Array.isArray(parsed)) {
+                    showAlert("รูปแบบไม่ถูกต้อง", "ข้อมูลวันหยุดต้องอยู่ในรูปแบบ Array", "error");
+                    return;
+                }
+
+                let importedCount = 0;
+                parsed.forEach(item => {
+                    if (item && item.date && item.desc) {
+                        const iso = toISODateString(item.date);
+                        if (iso) {
+                            holidayMasterMap[iso] = {
+                                desc: String(item.desc),
+                                enabled: item.enabled !== false,
+                                isCustom: !!item.isCustom
+                            };
+                            importedCount++;
+                        }
+                    }
+                });
+
+                saveHolidayMaster();
+                renderHolidayList();
+                updateDashboard();
+                showAlert("นำเข้าสำเร็จ", `นำเข้าวันหยุดเรียบร้อยแล้วจำนวน ${importedCount} รายการ`, "success");
+            } catch(err) {
+                console.error("Import error:", err);
+                showAlert("เกิดข้อผิดพลาด", "ไม่สามารถอ่านข้อมูล JSON ได้ กรุณาตรวจสอบรูปแบบข้อความ", "error");
+            }
+        }
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('wlm_projects_data', JSON.stringify(projects));
+            } catch(e) {
+                console.error("Local Storage Save Error:", e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('wlm_projects_data');
+                if (saved) {
+                    const parsedData = JSON.parse(saved);
+                    if (Array.isArray(parsedData) && parsedData.length > 0) projects = parsedData;
+                }
+            } catch(e) {
+                console.error("Local Storage Load Error:", e);
+            }
+        }
+
+        window.onload = function() {
+            initHolidayMaster();
+            loadFromLocalStorage();
+            populateYearFilter();
+            updateDashboard();
+            
+            if (isLocalMode) {
+                updateSyncBadge("local", "โหมดในเครื่อง (Local Mode)");
+            } else if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") && googleScriptUrl.trim()) {
+                fetchDataFromGoogleSheet();
+            } else {
+                updateSyncBadge("local", "โหมดในเครื่อง (Local Mode)");
+            }
+        };
+
+        function openSyncSettingModal() {
+            const modal = document.getElementById('sync-setting-modal');
+            if (!modal) return;
+            document.getElementById('input-script-url').value = googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") ? "" : googleScriptUrl;
+            updateSyncSettingUI();
+            modal.style.display = 'flex';
+        }
+
+        function closeSyncSettingModal() {
+            document.getElementById('sync-setting-modal').style.display = 'none';
+        }
+
+        function updateSyncSettingUI() {
+            const btnLocal = document.getElementById('btn-mode-local');
+            const btnOnline = document.getElementById('btn-mode-online');
+            const urlGroup = document.getElementById('url-setting-group');
+
+            if (isLocalMode) {
+                btnLocal.className = "flex-1 py-2 px-3 rounded-xl border border-emerald-500 bg-emerald-50 text-emerald-800 font-bold transition cursor-pointer shadow-xs";
+                btnOnline.className = "flex-1 py-2 px-3 rounded-xl border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition cursor-pointer";
+                if (urlGroup) urlGroup.classList.add('opacity-50');
+            } else {
+                btnLocal.className = "flex-1 py-2 px-3 rounded-xl border border-slate-200 bg-white text-slate-600 font-medium hover:bg-slate-50 transition cursor-pointer";
+                btnOnline.className = "flex-1 py-2 px-3 rounded-xl border border-blue-500 bg-blue-50 text-blue-800 font-bold transition cursor-pointer shadow-xs";
+                if (urlGroup) urlGroup.classList.remove('opacity-50');
+            }
+        }
+
+        function switchToLocalMode() {
+            isLocalMode = true;
+            updateSyncSettingUI();
+        }
+
+        function switchToOnlineMode() {
+            isLocalMode = false;
+            updateSyncSettingUI();
+        }
+
+        function saveSyncSettings() {
+            const newUrl = document.getElementById('input-script-url').value.trim();
+            if (newUrl) {
+                googleScriptUrl = newUrl;
+                localStorage.setItem('wlm_google_script_url', newUrl);
+            }
+            
+            localStorage.setItem('wlm_mode', isLocalMode ? 'local' : 'online');
+            closeSyncSettingModal();
+
+            if (isLocalMode) {
+                updateSyncBadge("local", "โหมดในเครื่อง (Local Mode)");
+                showAlert("สลับโหมดสำเร็จ", "เปลี่ยนเป็นโหมดบันทึกข้อมูลในเครื่องเรียบร้อยแล้ว", "success");
+            } else {
+                fetchDataFromGoogleSheet();
+            }
+        }
+
+        function updateSyncBadge(status, text) {
+            const syncStatus = document.getElementById('sync-status');
+            const syncText = document.getElementById('sync-text');
+            if (!syncStatus || !syncText) return;
+
+            syncText.innerText = text;
+            if (status === "connected") {
+                syncStatus.className = "text-xs px-3 py-1.5 rounded-xl bg-emerald-950/60 text-emerald-200 flex items-center gap-2 border border-emerald-700/60 shadow-sm cursor-pointer hover:bg-emerald-900 transition";
+                syncStatus.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span><span>${text}</span>`;
+            } else if (status === "syncing") {
+                syncStatus.className = "text-xs px-3 py-1.5 rounded-xl bg-amber-950/60 text-amber-200 flex items-center gap-2 border border-amber-700/60 shadow-sm cursor-pointer hover:bg-amber-900 transition";
+                syncStatus.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span><span>${text}</span>`;
+            } else if (status === "error") {
+                syncStatus.className = "text-xs px-3 py-1.5 rounded-xl bg-rose-950/60 text-rose-200 flex items-center gap-2 border border-rose-700/60 shadow-sm cursor-pointer hover:bg-rose-900 transition";
+                syncStatus.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>${text}</span>`;
+            } else {
+                syncStatus.className = "text-xs px-3 py-1.5 rounded-xl bg-slate-800 text-slate-200 flex items-center gap-2 border border-slate-600 shadow-sm cursor-pointer hover:bg-slate-700 transition";
+                syncStatus.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span><span>${text}</span>`;
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('filter-sidebar');
+            if (sidebar) sidebar.classList.toggle('hidden');
+        }
+
+        function openHolidayModal() {
+            renderCustomHolidayTable();
+            document.getElementById('holiday-modal').style.display = 'flex';
+        }
+
+        function closeHolidayModal() {
+            document.getElementById('holiday-modal').style.display = 'none';
+        }
+
+        function handleHolidaySubmit(event) {
+            event.preventDefault();
+            const rawDateVal = document.getElementById('holiday-date').value;
+            const descVal = document.getElementById('holiday-desc').value.trim();
+
+            const dateVal = toISODateString(rawDateVal);
+
+            if (!dateVal || !descVal) {
+                showAlert("ข้อมูลไม่ครบถ้วน", "กรุณาระบุวันที่และรายละเอียดวันหยุด", "error");
+                return;
+            }
+
+            if (customHolidays.some(h => toISODateString(h.date) === dateVal)) {
+                showAlert("วันที่ซ้ำ", "มีวันหยุดวันนี้ในระบบแล้ว", "error");
+                return;
+            }
+
+            const newHoliday = { date: dateVal, desc: descVal };
+            customHolidays.push(newHoliday);
+            customHolidays.sort((a, b) => new Date(a.date) - new Date(b.date));
+            saveCustomHolidays();
+
+            document.getElementById('holiday-form').reset();
+            renderCustomHolidayTable();
+            updateDashboard();
+
+            if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") && googleScriptUrl.trim()) {
+                sendHolidayToGoogleSheet({ action: "saveHoliday", date: dateVal, desc: descVal });
+            }
+
+            showAlert("บันทึกสำเร็จ", "เพิ่มวันหยุดพิเศษเรียบร้อยแล้ว", "success");
+        }
+
+        function deleteCustomHoliday(dateStr) {
+            const isoTarget = toISODateString(dateStr) || dateStr;
+            customHolidays = customHolidays.filter(h => (toISODateString(h.date) || h.date) !== isoTarget);
+            saveCustomHolidays();
+            renderCustomHolidayTable();
+            updateDashboard();
+
+            if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") && googleScriptUrl.trim()) {
+                sendHolidayToGoogleSheet({ action: "deleteHoliday", date: isoTarget });
+            }
+        }
+
+        function renderCustomHolidayTable() {
+            const tbody = document.getElementById('custom-holiday-tbody');
+            const countEl = document.getElementById('custom-holiday-count');
+            tbody.innerHTML = "";
+            countEl.innerText = `${customHolidays.length} รายการ`;
+
+            if (customHolidays.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">ยังไม่มีวันหยุดพิเศษที่คุณบันทึกเพิ่มเติม</td></tr>`;
+                return;
+            }
+
+            customHolidays.forEach(h => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-100 hover:bg-slate-50";
+                
+                let formattedDate = formatThaiDate(h.date);
+
+                tr.innerHTML = `
+                    <td class="p-2.5 font-semibold text-slate-700">${formattedDate}</td>
+                    <td class="p-2.5 text-slate-600">${h.desc}</td>
+                    <td class="p-2.5 text-center">
+                        <button type="button" onclick="deleteCustomHoliday('${h.date}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs transition cursor-pointer" title="ลบวันหยุดนี้">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function showAlert(title, message, type = "info") {
+            document.getElementById('alert-title').innerText = title;
+            document.getElementById('alert-message').innerText = message;
+            const iconEl = document.getElementById('alert-icon');
+            if (type === "success") {
+                iconEl.className = "w-14 h-14 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto";
+                iconEl.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+            } else if (type === "error") {
+                iconEl.className = "w-14 h-14 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center text-2xl mx-auto";
+                iconEl.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+            } else {
+                iconEl.className = "w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-2xl mx-auto";
+                iconEl.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+            }
+            document.getElementById('alert-modal').style.display = 'flex';
+        }
+
+        function closeAlert() {
+            document.getElementById('alert-modal').style.display = 'none';
+        }
+
+        function addDaysToDate(dateStr, days, dayType) {
+            let d = parseDateSafe(dateStr) || new Date();
+            d.setHours(0,0,0,0);
+
+            if (dayType === "วันทำการ") {
+                let added = 0;
+                while (added < days) {
+                    d.setDate(d.getDate() + 1);
+                    const dayOfWeek = d.getDay();
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isThaiHoliday(d)) {
+                        added++;
+                    }
+                }
+            } else {
+                d.setDate(d.getDate() + days);
+            }
+            return d;
+        }
+
+        function computeProjectMatrix(p) {
+            const steps = p.procurement === "วิธี E-bidding" ? STEPS_E_BIDDING : STEPS_SPECIFIC;
+            let currentBaseDate = parseDateSafe(p.projectStartDate) || new Date();
+            currentBaseDate.setHours(0,0,0,0);
+
+            let result = {};
+            let runningDate = new Date(currentBaseDate.getTime());
+            let stepInputModes = p.stepInputModes || {};
+            let specificDates = p.specificDates || {};
+
+            steps.forEach((stepName) => {
+                let planEndDate;
+                let mode = stepInputModes[stepName] || "days";
+
+                if (mode === "date" && specificDates[stepName]) {
+                    planEndDate = parseDateSafe(specificDates[stepName]);
+                    if (!planEndDate) {
+                        planEndDate = new Date(runningDate.getTime());
+                    }
+                } else {
+                    let stepConfig = { days: 10, dayType: "วันทำการ" };
+                    if (p.stepDurations && p.stepDurations[stepName]) {
+                        if (typeof p.stepDurations[stepName] === 'object') {
+                            stepConfig = p.stepDurations[stepName];
+                        } else {
+                            stepConfig = { days: Number(p.stepDurations[stepName]) || 10, dayType: "วันทำการ" };
+                        }
+                    }
+                    planEndDate = addDaysToDate(toISODateString(runningDate), Number(stepConfig.days), stepConfig.dayType);
+                }
+
+                let planStr = formatThaiDate(planEndDate);
+
+                let actualDateStr = p.actualDates && p.actualDates[stepName] ? p.actualDates[stepName] : "";
+                let actualFormatted = "";
+                let delayDays = 0;
+                let statusTextDesc = "-";
+
+                if (actualDateStr) {
+                    let actualDate = parseDateSafe(actualDateStr);
+                    if (actualDate) {
+                        actualFormatted = formatThaiDate(actualDate);
+                        
+                        let diffTime = actualDate - planEndDate;
+                        delayDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (delayDays > 0) {
+                            statusTextDesc = `ล่าช้า ${delayDays} วัน`;
+                        } else if (delayDays < 0) {
+                            statusTextDesc = `เร็วกว่ากำหนด ${Math.abs(delayDays)} วัน`;
+                        } else {
+                            statusTextDesc = `ตามกำหนด`;
+                        }
+                    } else {
+                        statusTextDesc = "ระบุวันที่ไม่ถูกต้อง";
+                    }
+                } else {
+                    statusTextDesc = "อยู่ระหว่างดำเนินการ";
+                }
+
+                result[stepName] = {
+                    plan: planStr,
+                    actual: actualFormatted,
+                    actualRaw: actualDateStr,
+                    delay: delayDays,
+                    statusText: statusTextDesc
+                };
+
+                runningDate = new Date(planEndDate.getTime());
+            });
+
+            return { steps, result };
+        }
+
+        function openProjectModal(isEdit = false, id = null) {
+            try {
+                const modal = document.getElementById('project-modal');
+                if (!modal) return;
+                modal.style.display = 'flex';
+
+                const todayStr = toISODateString(new Date());
+                if (isEdit && id) {
+                    document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูลโครงการ';
+                    const p = projects.find(item => String(item.id) === String(id));
+                    if (p) {
+                        document.getElementById('edit-index').value = p.id;
+                        document.getElementById('proj-no').value = p.id;
+                        document.getElementById('proj-no').disabled = true;
+                        document.getElementById('proj-year').value = p.year || "2570";
+                        document.getElementById('proj-name').value = p.name || "";
+                        document.getElementById('proj-budget-type').value = p.budgetType || "งบทำการ";
+                        document.getElementById('proj-work-type').value = p.workType || "ซื้อ";
+                        document.getElementById('proj-budget').value = p.budget || "";
+                        document.getElementById('proj-procurement').value = p.procurement || "วิธี E-bidding";
+                        document.getElementById('proj-start-date').value = toISODateString(p.projectStartDate) || todayStr;
+                        onProcurementChange(p.stepDurations, p.actualDates, p.stepInputModes, p.specificDates);
+                        document.getElementById('proj-current-step').value = p.currentStep || "";
+                    }
+                } else {
+                    document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-file-contract"></i> เพิ่มโครงการสัญญาจ้างใหม่';
+                    const form = document.getElementById('project-form');
+                    if (form) form.reset();
+                    document.getElementById('edit-index').value = "";
+                    document.getElementById('proj-no').disabled = false;
+                    document.getElementById('proj-year').value = "2570";
+                    document.getElementById('proj-start-date').value = todayStr;
+                    onProcurementChange();
+                }
+            } catch (err) {
+                console.error("Open modal error:", err);
+                showAlert("เกิดข้อผิดพลาด", "ไม่สามารถเปิดหน้าต่างได้: " + err.message, "error");
+            }
+        }
+
+        function closeProjectModal() {
+            document.getElementById('project-modal').style.display = 'none';
+        }
+
+        function onProcurementChange(savedDurations = null, savedActuals = null, savedTypes = null, savedSpecificDates = null) {
+            const proc = document.getElementById('proj-procurement').value;
+            const stepSelect = document.getElementById('proj-current-step');
+            stepSelect.innerHTML = "";
+            const steps = proc === "วิธี E-bidding" ? STEPS_E_BIDDING : STEPS_SPECIFIC;
+            steps.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                stepSelect.appendChild(opt);
+            });
+
+            renderStepPlanningInputs(steps, 
+                savedDurations || (proc === "วิธี E-bidding" ? DEFAULT_DURATIONS_E_BIDDING : DEFAULT_DURATIONS_SPECIFIC),
+                savedActuals || {},
+                savedTypes || {},
+                savedSpecificDates || {}
+            );
+        }
+
+        function renderStepPlanningInputs(steps, durationsObj, actualsObj, typesObj, specificDatesObj) {
+            const container = document.getElementById('step-planning-container');
+            container.innerHTML = "";
+
+            steps.forEach((s, idx) => {
+                let defaultItem = { days: 10, dayType: "วันทำการ" };
+                if (durationsObj && durationsObj[s] !== undefined) {
+                    if (typeof durationsObj[s] === 'object' && durationsObj[s] !== null) {
+                        defaultItem = durationsObj[s];
+                    } else {
+                        defaultItem = { days: Number(durationsObj[s]) || 10, dayType: "วันทำการ" };
+                    }
+                }
+                let inputMode = (typesObj && typesObj[s]) ? typesObj[s] : "days";
+                let specificDateVal = (specificDatesObj && specificDatesObj[s]) ? toISODateString(specificDatesObj[s]) : "";
+                let actualVal = (actualsObj && actualsObj[s]) ? toISODateString(actualsObj[s]) : "";
+
+                const row = document.createElement('div');
+                row.className = "bg-white p-2.5 rounded-xl border border-emerald-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 text-xs";
+                row.innerHTML = `
+                    <div class="w-full md:w-36 font-bold text-emerald-900 truncate" title="${s}">
+                        <i class="fa-solid fa-circle-dot text-[8px] text-emerald-600 mr-1"></i> ${s}
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 flex-1 w-full md:w-auto">
+                        <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                            <span class="text-[10px] text-slate-500 px-1">รูปแบบ:</span>
+                            <select data-step-index="${idx}" data-field="mode" onchange="toggleStepInputMode(${idx})" class="text-[11px] bg-transparent font-medium text-blue-900 focus:outline-none">
+                                <option value="days" ${inputMode === 'days' ? 'selected' : ''}>ระยะเวลา (วัน)</option>
+                                <option value="date" ${inputMode === 'date' ? 'selected' : ''}>ระบุวันที่สิ้นสุด</option>
+                            </select>
+                        </div>
+
+                        <div id="wrap-days-${idx}" class="flex items-center gap-1.5 ${inputMode === 'date' ? 'hidden' : ''}">
+                            <input type="number" min="1" data-step-index="${idx}" data-field="days" value="${defaultItem.days}" class="w-14 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-center focus:outline-none focus:border-blue-500">
+                            <select data-step-index="${idx}" data-field="daytype" class="text-[10px] px-2 py-1 bg-slate-50 border border-slate-200 rounded focus:outline-none focus:border-blue-500">
+                                <option value="วันทำการ" ${defaultItem.dayType === 'วันทำการ' ? 'selected' : ''}>วันทำการ</option>
+                                <option value="วันปฏิทิน" ${defaultItem.dayType === 'วันปฏิทิน' ? 'selected' : ''}>วันปฏิทิน</option>
+                            </select>
+                        </div>
+
+                        <div id="wrap-date-${idx}" class="flex items-center gap-1.5 ${inputMode === 'days' ? 'hidden' : ''}">
+                            <input type="date" data-step-index="${idx}" data-field="specificDate" value="${specificDateVal}" class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[11px] focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 w-full md:w-auto justify-end pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+                        <span class="text-[10px] text-amber-800 font-semibold">เสร็จจริง:</span>
+                        <input type="date" data-step-index="${idx}" data-field="actual" value="${actualVal}" class="px-2 py-1 bg-amber-50/50 border border-amber-200 rounded text-[11px] focus:outline-none focus:border-amber-500">
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function toggleStepInputMode(idx) {
+            const daysWrap = document.getElementById(`wrap-days-${idx}`);
+            const dateWrap = document.getElementById(`wrap-date-${idx}`);
+            const modeSelect = document.querySelector(`select[data-step-index="${idx}"][data-field="mode"]`);
+            
+            if (modeSelect && modeSelect.value === 'days') {
+                if (daysWrap) daysWrap.classList.remove('hidden');
+                if (dateWrap) dateWrap.classList.add('hidden');
+            } else {
+                if (daysWrap) daysWrap.classList.add('hidden');
+                if (dateWrap) dateWrap.classList.remove('hidden');
+            }
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const pass = document.getElementById('auth-password').value;
+            if (pass !== "1698") {
+                showAlert("รหัสผ่านไม่ถูกต้อง", "กรุณากรอกรหัสผ่านยืนยันให้ถูกต้อง (Password: 1698)", "error");
+                return;
+            }
+
+            const proc = document.getElementById('proj-procurement').value;
+            const steps = proc === "วิธี E-bidding" ? STEPS_E_BIDDING : STEPS_SPECIFIC;
+            const stepDurations = {};
+            const actualDates = {};
+            const stepInputModes = {};
+            const specificDates = {};
+
+            steps.forEach((s, idx) => {
+                const modeSelect = document.querySelector(`select[data-step-index="${idx}"][data-field="mode"]`);
+                const mode = modeSelect ? modeSelect.value : "days";
+                stepInputModes[s] = mode;
+
+                if (mode === "days") {
+                    const dayInput = document.querySelector(`input[data-step-index="${idx}"][data-field="days"]`);
+                    const typeSelect = document.querySelector(`select[data-step-index="${idx}"][data-field="daytype"]`);
+                    stepDurations[s] = {
+                        days: dayInput ? parseInt(dayInput.value) || 10 : 10,
+                        dayType: typeSelect ? typeSelect.value : "วันทำการ"
+                    };
+                } else {
+                    const dateInput = document.querySelector(`input[data-step-index="${idx}"][data-field="specificDate"]`);
+                    if (dateInput && dateInput.value) {
+                        specificDates[s] = toISODateString(dateInput.value);
+                    }
+                }
+
+                const actualInput = document.querySelector(`input[data-step-index="${idx}"][data-field="actual"]`);
+                if (actualInput && actualInput.value) {
+                    actualDates[s] = toISODateString(actualInput.value);
+                }
+            });
+
+            const editId = document.getElementById('edit-index').value;
+            const projData = {
+                action: "upsert",
+                id: document.getElementById('proj-no').value.trim(),
+                year: document.getElementById('proj-year').value,
+                name: document.getElementById('proj-name').value.trim(),
+                budgetType: document.getElementById('proj-budget-type').value,
+                workType: document.getElementById('proj-work-type').value,
+                budget: parseFloat(document.getElementById('proj-budget').value) || 0,
+                procurement: proc,
+                currentStep: document.getElementById('proj-current-step').value,
+                projectStartDate: toISODateString(document.getElementById('proj-start-date').value) || toISODateString(new Date()),
+                stepDurations: stepDurations,
+                stepInputModes: stepInputModes,
+                specificDates: specificDates,
+                actualDates: actualDates
+            };
+
+            if (editId) {
+                const idx = projects.findIndex(p => String(p.id) === String(editId));
+                if (idx !== -1) {
+                    projects[idx] = projData;
+                }
+            } else {
+                if (projects.some(p => String(p.id) === String(projData.id))) {
+                    showAlert("เลขที่โครงการซ้ำ", "มีเลขที่โครงการนี้อยู่ในระบบแล้ว กรุณาใช้เลขที่อื่น", "error");
+                    return;
+                }
+                projects.push(projData);
+            }
+
+            saveToLocalStorage();
+            closeProjectModal();
+            populateYearFilter();
+            updateDashboard();
+            
+            if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") && googleScriptUrl.trim()) {
+                sendDataToGoogleSheet(projData);
+            } else {
+                showAlert("บันทึกสำเร็จ", "บันทึกข้อมูลเรียบร้อยแล้ว (สำรองไว้ในเครื่อง)", "success");
+            }
+        }
+
+        function deleteProject(id) {
+            const pass = prompt("กรุณากรอกรหัสผ่าน (xxxx) เพื่อยืนยันการลบข้อมูล:");
+            if (pass !== "1698") {
+                if (pass !== null) showAlert("รหัสผ่านไม่ถูกต้อง", "ไม่สามารถลบข้อมูลได้", "error");
+                return;
+            }
+            
+            const deletePayload = { action: "delete", id: String(id) };
+            projects = projects.filter(p => String(p.id) !== String(id));
+            
+            saveToLocalStorage();
+            populateYearFilter();
+            updateDashboard();
+            
+            if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") && googleScriptUrl.trim()) {
+                sendDataToGoogleSheet(deletePayload);
+            } else {
+                showAlert("ลบสำเร็จ", "ลบโครงการออกจากระบบแล้ว", "success");
+            }
+        }
+
+        function populateYearFilter() {
+            const yearSelect = document.getElementById('filter-year');
+            const currentVal = yearSelect.value;
+            yearSelect.innerHTML = '<option value="">ทั้งหมด</option>';
+            
+            const presetYears = ["2570", "2571", "2572", "2573", "2574", "2575"];
+            const yearsSet = new Set([...presetYears, ...projects.map(p => String(p.year))]);
+            
+            Array.from(yearsSet).sort().reverse().forEach(y => {
+                if (y) {
+                    const opt = document.createElement('option');
+                    opt.value = y;
+                    opt.textContent = y;
+                    yearSelect.appendChild(opt);
+                }
+            });
+            yearSelect.value = currentVal;
+        }
+
+        function applyFilters() {
+            updateDashboard();
+        }
+
+        function resetFilters() {
+            document.getElementById('filter-search').value = "";
+            document.getElementById('filter-year').value = "";
+            document.getElementById('filter-budget-type').value = "";
+            document.getElementById('filter-work-type').value = "";
+            document.getElementById('filter-procurement').value = "";
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const fYear = document.getElementById('filter-year').value;
+            const fBudgetType = document.getElementById('filter-budget-type').value;
+            const fWorkType = document.getElementById('filter-work-type').value;
+            const fProc = document.getElementById('filter-procurement').value;
+
+            let filtered = projects.filter(p => {
+                const pId = String(p.id || "");
+                const pName = String(p.name || "");
+                const matchSearch = pId.toLowerCase().includes(search) || pName.toLowerCase().includes(search);
+                const matchYear = !fYear || String(p.year) === String(fYear);
+                const matchBudgetType = !fBudgetType || p.budgetType === fBudgetType;
+                const matchWorkType = !fWorkType || p.workType === fWorkType;
+                const matchProc = !fProc || p.procurement === fProc;
+                return matchSearch && matchYear && matchBudgetType && matchWorkType && matchProc;
+            });
+
+            let totalBudget = projects.reduce((acc, curr) => acc + (parseFloat(curr.budget) || 0), 0);
+            document.getElementById('kpi-total').innerText = projects.length;
+            document.getElementById('kpi-budget').innerText = totalBudget.toLocaleString('th-TH', { minimumFractionDigits: 2 });
+
+            const matrixContainer = document.getElementById('projects-matrix-container');
+            matrixContainer.innerHTML = "";
+
+            if (filtered.length === 0) {
+                matrixContainer.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">ไม่พบข้อมูลโครงการตามเงื่อนไขที่เลือก</div>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const { steps, result } = computeProjectMatrix(p);
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6";
+                
+                let stepsHeaderHtml = '';
+                let stepsPlanHtml = '';
+                let stepsActualHtml = '';
+                let stepsDelayHtml = '';
+
+                steps.forEach(s => {
+                    const data = result[s];
+                    stepsHeaderHtml += `<th class="p-2.5 text-center border-r border-slate-200 font-semibold text-slate-700 text-xs min-w-[120px] bg-slate-100">${s}</th>`;
+                    stepsPlanHtml += `<td class="p-2.5 text-center border-r border-slate-200 text-xs text-blue-950 font-medium bg-blue-50/50">${data.plan || '-'}</td>`;
+                    
+                    if (data.actualRaw) {
+                        stepsActualHtml += `<td class="p-2.5 text-center border-r border-slate-200 text-xs bg-emerald-100/80 font-bold text-emerald-900">${data.actual || '-'}</td>`;
+                    } else {
+                        stepsActualHtml += `<td class="p-2.5 text-center border-r border-slate-200 text-xs bg-amber-100/70 font-semibold text-amber-900">อยู่ระหว่างดำเนินการ</td>`;
+                    }
+                    
+                    let delayStyle = "text-slate-500";
+                    if (data.delay > 0) {
+                        delayStyle = "text-rose-600 font-bold";
+                    } else if (data.delay < 0) {
+                        delayStyle = "text-emerald-700 font-bold";
+                    } else if (data.actualRaw) {
+                        delayStyle = "text-blue-700 font-semibold";
+                    }
+                    stepsDelayHtml += `<td class="p-2.5 text-center border-r border-slate-200 text-xs ${delayStyle}">${data.statusText || '-'}</td>`;
+                });
+
+                card.innerHTML = `
+                    <div class="p-4 bg-slate-50/80 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                        <div>
+                            <div class="flex items-center flex-wrap gap-2">
+                                <span class="text-xs font-bold text-slate-800 bg-white px-2.5 py-1 rounded-lg border border-slate-200 shadow-xs">เลขที่: ${p.id || '-'}</span>
+                                <span class="text-xs bg-blue-100 text-blue-900 font-medium px-2.5 py-1 rounded-lg">${p.workType || '-'} (${p.budgetType || '-'}) - ${p.procurement || '-'}</span>
+                            </div>
+                            <h3 class="font-bold text-base mt-2 text-slate-900">${p.name || '-'}</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">งบประมาณ: <span class="font-semibold text-slate-800">${Number(p.budget || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span> | ปีงบประมาณ: ${p.year || '-'}</p>
+                        </div>
+                        <div class="flex items-center gap-2 self-end sm:self-center">
+                            <button type="button" onclick="openProjectModal(true, '${p.id}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                                <i class="fa-solid fa-pen-to-square"></i> แก้ไข / กรอกวันจริง
+                            </button>
+                            <button type="button" onclick="deleteProject('${p.id}')" class="bg-rose-600 hover:bg-rose-500 text-white text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                                <i class="fa-solid fa-trash"></i> ลบ
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse border-b border-slate-200">
+                            <thead>
+                                <tr class="border-b border-slate-200">
+                                    <th class="p-2.5 text-left bg-slate-200/80 text-slate-700 text-xs font-bold w-44 border-r border-slate-300">หัวข้อ</th>
+                                    ${stepsHeaderHtml}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-100">
+                                    <td class="p-2.5 text-xs font-bold bg-blue-900 text-white border-r border-slate-200">แผน/คาดการณ์</td>
+                                    ${stepsPlanHtml}
+                                </tr>
+                                <tr class="border-b border-slate-100">
+                                    <td class="p-2.5 text-xs font-bold bg-emerald-800 text-white border-r border-slate-200">แล้วเสร็จจริง</td>
+                                    ${stepsActualHtml}
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 text-xs font-bold bg-slate-700 text-white border-r border-slate-200">สถานะ / ล่าช้า-เร็วกว่ากำหนด</td>
+                                    ${stepsDelayHtml}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>`;
+
+                matrixContainer.appendChild(card);
+            });
+        }
+
+        function mergeCustomHolidays(onlineHolidays) {
+            if (!Array.isArray(onlineHolidays)) return;
+            const holidayMap = new Map();
+            
+            // 1. Preserve existing local holidays
+            customHolidays.forEach(h => {
+                if (h && h.date) {
+                    const iso = toISODateString(h.date);
+                    if (iso) holidayMap.set(iso, h.desc || "");
+                }
+            });
+
+            // 2. Merge online holidays from Google Sheets
+            onlineHolidays.forEach(h => {
+                if (h && h.date) {
+                    const iso = toISODateString(h.date);
+                    if (iso) holidayMap.set(iso, h.desc || "");
+                }
+            });
+
+            // Rebuild customHolidays list
+            customHolidays = [];
+            holidayMap.forEach((desc, date) => {
+                customHolidays.push({ date, desc });
+            });
+            customHolidays.sort((a, b) => new Date(a.date) - new Date(b.date));
+            saveCustomHolidays();
+        }
+
+        function fetchDataFromGoogleSheet() {
+            if (isLocalMode) {
+                updateSyncBadge("local", "โหมดในเครื่อง (Local Mode)");
+                return;
+            }
+
+            if (!googleScriptUrl || googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") || !googleScriptUrl.trim()) {
+                updateSyncBadge("local", "โหมดในเครื่อง (Local Mode)");
+                return;
+            }
+
+            updateSyncBadge("syncing", "กำลังซิงค์ข้อมูล...");
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                controller.abort();
+            }, 4000);
+
+            fetch(googleScriptUrl, { signal: controller.signal })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    if (!response.ok) throw new Error("HTTP error " + response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    let projectList = [];
+                    if (Array.isArray(data)) {
+                        projectList = data;
+                    } else if (data && typeof data === 'object') {
+                        if (Array.isArray(data.projects)) projectList = data.projects;
+                        if (Array.isArray(data.holidays)) {
+                            data.holidays.forEach(h => {
+                                if (h && h.date) {
+                                    const iso = toISODateString(h.date);
+                                    if (iso && !holidayMasterMap[iso]) {
+                                        holidayMasterMap[iso] = {
+                                            desc: h.desc || "วันหยุด",
+                                            enabled: true,
+                                            isCustom: true
+                                        };
+                                    }
+                                }
+                            });
+                            saveHolidayMaster();
+                        }
+                    }
+
+                    if (projectList.length > 0) {
+                        projects = projectList.map(item => {
+                            ['stepDurations', 'stepInputModes', 'specificDates', 'actualDates'].forEach(field => {
+                                if (item[field] && typeof item[field] === 'string') {
+                                    try { item[field] = JSON.parse(item[field]); } catch(e) { item[field] = {}; }
+                                } else if (!item[field]) {
+                                    item[field] = {};
+                                }
+                            });
+                            return item;
+                        });
+                        saveToLocalStorage();
+                    }
+                    
+                    populateYearFilter();
+                    updateDashboard();
+                    
+                    const timeStr = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                    updateSyncBadge("connected", `เชื่อมต่อ Google Sheets แล้ว (${timeStr})`);
+                })
+                .catch(err => {
+                    clearTimeout(timeoutId);
+                    console.warn("Google Sheets Sync Fallback to Local:", err);
+                    updateSyncBadge("local", "โหมดในเครื่อง (Local Mode)");
+                });
+        }
+
+        function sendDataToGoogleSheet(projData) {
+            if (isLocalMode || !googleScriptUrl || googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") || !googleScriptUrl.trim()) {
+                showAlert("บันทึกสำเร็จ", "บันทึกข้อมูลเรียบร้อยแล้ว (เก็บข้อมูลไว้ในเครื่อง)", "success");
+                return;
+            }
+
+            let payload = { ...projData };
+            if (payload.stepDurations) payload.stepDurations = JSON.stringify(payload.stepDurations);
+            if (payload.stepInputModes) payload.stepInputModes = JSON.stringify(payload.stepInputModes);
+            if (payload.specificDates) payload.specificDates = JSON.stringify(payload.specificDates);
+            if (payload.actualDates) payload.actualDates = JSON.stringify(payload.actualDates);
+
+            fetch(googleScriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                showAlert("บันทึกสำเร็จ", "บันทึกข้อมูลและส่งไปยัง Google Sheets เรียบร้อยแล้ว", "success");
+                fetchDataFromGoogleSheet();
+            }).catch(err => {
+                console.error("Post error:", err);
+                showAlert("แจ้งเตือน", "การส่งไป Google Sheets ขัดข้อง แต่บันทึกข้อมูลในเครื่องเรียบร้อยแล้ว", "error");
+                populateYearFilter();
+                updateDashboard();
+            });
+        }
+
+        function sendHolidayToGoogleSheet(holidayData) {
+            if (!googleScriptUrl || googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE") || !googleScriptUrl.trim()) return;
+            fetch(googleScriptUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(holidayData)
+            }).then(() => {
+                fetchDataFromGoogleSheet();
+            }).catch(err => {
+                console.error("Post holiday error:", err);
+            });
+        }
+    </script>
+</body>
+</html>

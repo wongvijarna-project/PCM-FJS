@@ -317,20 +317,20 @@
         const googleScriptUrl = "https://script.google.com/macros/s/AKfycbzX1TEY2vrIIYVuoYesI72OdOiCAd32a7yGJKs2i3vh5cySZYrwZ2IyRs7IXAzJ-eFA/exec";
 
         const STEPS_E_BIDDING = ["อนุมัติงบ", "TOR", "ราคากลาง", "ร่างประกาศ", "ประกาศเชิญชวน", "พิจารณาผล", "อุทธรณ์", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"];
-        const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", "ออกคำสั่งแต่งตั้ง", "พิจารณาผล", "จัดทำข้อตกลง", "ลงนาม"];
+        const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", , "คณะฯ/จนท.เจราจา ผู้ค้า", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"];
 
         const DEFAULT_DURATIONS_E_BIDDING = {
-            "อนุมัติงบ": { days: 10, dayType: "วันทำการ" }, "TOR": { days: 15, dayType: "วันทำการ" },
-            "ราคากลาง": { days: 10, dayType: "วันทำการ" }, "ร่างประกาศ": { days: 5, dayType: "วันทำการ" },
-            "ประกาศเชิญชวน": { days: 20, dayType: "วันปฏิทิน" }, "พิจารณาผล": { days: 15, dayType: "วันทำการ" },
-            "อุทธรณ์": { days: 7, dayType: "วันปฏิทิน" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันทำการ" }, "ลงนาม": { days: 3, dayType: "วันทำการ" }
+            "อนุมัติงบ": { days: 2, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
+            "ราคากลาง": { days: 30, dayType: "วันทำการ" }, "ร่างประกาศ": { days:7, dayType: "วันทำการ" },
+            "ประกาศเชิญชวน": { days: 12, dayType: "วันทำการ" }, "พิจารณาผล": { days: 30, dayType: "วันทำการ" },
+            "อุทธรณ์": { days: 7, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" }, "ลงนาม": { days: 1, dayType: "วันทำการ" }
         };
 
         const DEFAULT_DURATIONS_SPECIFIC = {
-            "อนุมัติงบ": { days: 7, dayType: "วันทำการ" }, "TOR": { days: 10, dayType: "วันทำการ" },
-            "ราคากลาง": { days: 7, dayType: "วันทำการ" }, "รายงานขอซื้อ/จ้าง": { days: 3, dayType: "วันทำการ" },
-            "ออกคำสั่งแต่งตั้ง": { days: 3, dayType: "วันทำการ" }, "พิจารณาผล": { days: 10, dayType: "วันทำการ" },
-            "จัดทำข้อตกลง": { days: 5, dayType: "วันทำการ" }, "ลงนาม": { days: 2, dayType: "วันทำการ" }
+            "อนุมัติงบ": { days: 7, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
+            "ราคากลาง": { days: 30, dayType: "วันทำการ" }, "รายงานขอซื้อ/จ้าง": { days: 3, dayType: "วันทำการ" },
+            "คณะฯ / จนท.เจรจาผู้ค้า": { days: 10, dayType: "วันทำการ" },
+            "จัดทำค้ำ/เตรียมลงนาม": { days: 5, dayType: "วันทำการ" }, "ลงนาม": { days: 1, dayType: "วันทำการ" }
         };
 
         const DEFAULT_THAI_HOLIDAYS = new Set([

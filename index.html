@@ -290,7 +290,7 @@
                 <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 1rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
                     <div>
                         <h4 style="font-size: 0.8rem; font-weight: bold; color: #92400e;">🔒 ยืนยันรหัสผ่านก่อนบันทึก</h4>
-                        <p style="font-size: 0.7rem; color: #b45309;">รหัสผ่าน: xxxx</p>
+                        <p style="font-size: 0.7rem; color: #b45309;">รหัสผ่าน: 1698</p>
                     </div>
                     <input type="password" id="auth-password" required maxlength="4" placeholder="รหัสผ่าน 4 หลัก" style="width: 140px; background: white; text-align: center; font-weight: bold; letter-spacing: 0.2em;">
                 </div>
@@ -317,20 +317,20 @@
         const googleScriptUrl = "https://script.google.com/macros/s/AKfycbzX1TEY2vrIIYVuoYesI72OdOiCAd32a7yGJKs2i3vh5cySZYrwZ2IyRs7IXAzJ-eFA/exec";
 
         const STEPS_E_BIDDING = ["อนุมัติงบ", "TOR", "ราคากลาง", "ร่างประกาศ", "ประกาศเชิญชวน", "พิจารณาผล", "อุทธรณ์", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"];
-        const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", , "คณะฯ/จนท.เจราจา ผู้ค้า", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"];
+        const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", "ออกคำสั่งแต่งตั้ง", "พิจารณาผล", "จัดทำข้อตกลง", "ลงนาม"];
 
         const DEFAULT_DURATIONS_E_BIDDING = {
-            "อนุมัติงบ": { days: 2, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
-            "ราคากลาง": { days: 30, dayType: "วันทำการ" }, "ร่างประกาศ": { days:7, dayType: "วันทำการ" },
-            "ประกาศเชิญชวน": { days: 12, dayType: "วันทำการ" }, "พิจารณาผล": { days: 30, dayType: "วันทำการ" },
-            "อุทธรณ์": { days: 7, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" }, "ลงนาม": { days: 1, dayType: "วันทำการ" }
+            "อนุมัติงบ": { days: 10, dayType: "วันทำการ" }, "TOR": { days: 15, dayType: "วันทำการ" },
+            "ราคากลาง": { days: 10, dayType: "วันทำการ" }, "ร่างประกาศ": { days: 5, dayType: "วันทำการ" },
+            "ประกาศเชิญชวน": { days: 20, dayType: "วันปฏิทิน" }, "พิจารณาผล": { days: 15, dayType: "วันทำการ" },
+            "อุทธรณ์": { days: 7, dayType: "วันปฏิทิน" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันทำการ" }, "ลงนาม": { days: 3, dayType: "วันทำการ" }
         };
 
         const DEFAULT_DURATIONS_SPECIFIC = {
-            "อนุมัติงบ": { days: 7, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
-            "ราคากลาง": { days: 30, dayType: "วันทำการ" }, "รายงานขอซื้อ/จ้าง": { days: 3, dayType: "วันทำการ" },
-            "คณะฯ / จนท.เจรจาผู้ค้า": { days: 10, dayType: "วันทำการ" },
-            "จัดทำค้ำ/เตรียมลงนาม": { days: 5, dayType: "วันทำการ" }, "ลงนาม": { days: 1, dayType: "วันทำการ" }
+            "อนุมัติงบ": { days: 7, dayType: "วันทำการ" }, "TOR": { days: 10, dayType: "วันทำการ" },
+            "ราคากลาง": { days: 7, dayType: "วันทำการ" }, "รายงานขอซื้อ/จ้าง": { days: 3, dayType: "วันทำการ" },
+            "ออกคำสั่งแต่งตั้ง": { days: 3, dayType: "วันทำการ" }, "พิจารณาผล": { days: 10, dayType: "วันทำการ" },
+            "จัดทำข้อตกลง": { days: 5, dayType: "วันทำการ" }, "ลงนาม": { days: 2, dayType: "วันทำการ" }
         };
 
         const DEFAULT_THAI_HOLIDAYS = new Set([
@@ -470,7 +470,10 @@
                     document.getElementById('proj-work-type').value = p.workType || "ซื้อ";
                     document.getElementById('proj-budget').value = p.budget || "";
                     document.getElementById('proj-procurement').value = p.procurement || "วิธี E-bidding";
+                    
+                    // คงค่าวันที่เริ่มต้นเดิมไว้ หากไม่มีจึงใช้ค่าปัจจุบัน
                     document.getElementById('proj-start-date').value = p.projectStartDate || todayStr;
+                    
                     onProcurementChange(p.stepDurations, p.actualDates, p.stepInputModes, p.specificDates);
                     document.getElementById('proj-current-step').value = p.currentStep || "";
                 }
@@ -610,7 +613,7 @@
         function handleFormSubmit(event) {
             event.preventDefault();
             if (document.getElementById('auth-password').value !== "1698") {
-                showAlert("รหัสผ่านไม่ถูกต้อง", "กรุณากรอกรหัสผ่านยืนยันให้ถูกต้อง (xxxx)", "error");
+                showAlert("รหัสผ่านไม่ถูกต้อง", "กรุณากรอกรหัสผ่านยืนยันให้ถูกต้อง (1698)", "error");
                 return;
             }
             const proc = document.getElementById('proj-procurement').value;
@@ -634,6 +637,12 @@
             });
 
             const editId = document.getElementById('edit-index').value;
+            const existingProj = editId ? projects.find(p => String(p.id) === String(editId)) : null;
+            
+            // หากเป็นการแก้ไขและไม่ได้กรอกวันที่ใหม่ ให้คงค่าวันที่เริ่มต้นเดิมไว้
+            const inputStartDate = document.getElementById('proj-start-date').value;
+            const finalStartDate = inputStartDate ? inputStartDate : (existingProj ? existingProj.projectStartDate : new Date().toISOString().split('T')[0]);
+
             const projData = {
                 action: "upsert",
                 id: document.getElementById('proj-no').value.trim(),
@@ -644,7 +653,7 @@
                 budget: parseFloat(document.getElementById('proj-budget').value) || 0,
                 procurement: proc,
                 currentStep: document.getElementById('proj-current-step').value,
-                projectStartDate: document.getElementById('proj-start-date').value || new Date().toISOString().split('T')[0],
+                projectStartDate: finalStartDate,
                 stepDurations, stepInputModes, specificDates, actualDates
             };
 
@@ -672,7 +681,7 @@
         }
 
         function deleteProject(id) {
-            if (prompt("กรุณากรอกรหัสผ่าน (xxxx) เพื่อยืนยันการลบ:") !== "1698") return;
+            if (prompt("กรุณากรอกรหัสผ่าน (1698) เพื่อยืนยันการลบ:") !== "1698") return;
             projects = projects.filter(p => String(p.id) !== String(id));
             saveToLocalStorage();
             populateYearFilter();
@@ -762,7 +771,7 @@
                                 <span style="font-size: 0.7rem; background: #e2e8f0; padding: 0.1rem 0.5rem; border-radius: 0.25rem;">${p.workType} (${p.budgetType}) - ${p.procurement}</span>
                             </div>
                             <h3 style="font-size: 0.95rem; font-weight: bold; color: #0f172a;">${p.name}</h3>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">งบประมาณ: <strong>${Number(p.budget || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</strong> | ปีงบประมาณ: ${p.year}</p>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">งบประมาณ: <strong>${Number(p.budget || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</strong> | ปีงบประมาณ: ${p.year} | วันเริ่มต้น: <strong>${p.projectStartDate ? new Date(p.projectStartDate).toLocaleDateString('th-TH', {year: 'numeric', month: 'short', day: 'numeric'}) : '-'}</strong></p>
                         </div>
                         <div style="display: flex; gap: 0.5rem;">
                             <button type="button" onclick="openProjectModal(true, '${p.id}')" class="btn btn-blue" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">✏️ แก้ไข</button>

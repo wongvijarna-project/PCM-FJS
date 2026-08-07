@@ -1,70 +1,70 @@
-<header class="bg-blue-900 text-white shadow-md sticky top-0 z-30">
-    <div class="max-w-[96%] mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="flex items-center space-x-3">
-            <div class="bg-blue-700 p-2.5 rounded-xl text-blue-200 shadow-inner">
-                <i class="fa-solid fa-water text-2xl"></i>
-            </div>
-            <div>
-                <h1 class="text-xl font-bold tracking-wide">ฝ่ายบริหารจัดการน้ำสูญเสีย</h1>
-                <p class="text-xs text-blue-200">ระบบ Dashboard ติดตามสถานะโครงการสัญญาจ้างและการจัดหา</p>
-            </div>
+    .main-container { max-width: 96%; margin: 1.5rem auto; width: 100%; display: flex; gap: 1.5rem; align-items: flex-start; }
+    aside { width: 320px; background: white; border-radius: 1rem; border: 1px solid #e2e8f0; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 5rem; }
+    content-area { flex: 1; display: flex; flex-direction: column; gap: 1.5rem; width: 100%; min-width: 0; }
+    
+    .card { background: white; border-radius: 1rem; border: 1px solid #e2e8f0; padding: 1.25rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05); }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    
+    input, select, textarea { width: 100%; padding: 0.6rem 0.8rem; font-size: 0.875rem; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.75rem; outline: none; transition: border 0.2s; }
+    input:focus, select:focus, textarea:focus { border-color: #2563eb; }
+    
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+    th, td { padding: 0.75rem; border-bottom: 1px solid #e2e8f0; }
+    th { background-color: #f1f5f9; color: #334155; font-weight: 600; }
+    
+    .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 50; display: none; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+    .modal-content { background: white; border-radius: 1rem; width: 100%; max-width: 800px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+    .hidden { display: none !important; }
+</style>
+
+
+<header>
+    <div class="header-title">
+        <div class="header-icon">💧</div>
+        <div>
+            <h1 style="font-size: 1.15rem; font-weight: bold;">ฝ่ายบริหารจัดการน้ำสูญเสีย</h1>
+            <p style="font-size: 0.75rem; color: #bfdbfe;">ระบบ Dashboard ติดตามสถานะโครงการสัญญาจ้างและการจัดหา</p>
         </div>
-        <div class="flex items-center flex-wrap gap-2.5">
-            <div id="sync-status" class="text-xs px-3.5 py-2 rounded-xl bg-blue-800 text-blue-200 flex items-center gap-2 border border-blue-700 shadow-sm">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>เชื่อมต่อ Google Sheets แล้ว</span>
-            </div>
-            <button type="button" onclick="toggleSidebar()" class="bg-blue-800 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-xl shadow transition flex items-center gap-2 cursor-pointer" title="ซ่อน/แสดงแถบตัวกรอง">
-                <i class="fa-solid fa-columns"></i> ซ่อน/แสดงตัวกรอง
-            </button>
-            <button type="button" onclick="openHolidayModal()" class="bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium px-4 py-2 rounded-xl shadow transition flex items-center gap-2 cursor-pointer">
-                <i class="fa-solid fa-calendar-days"></i> จัดการวันหยุด
-            </button>
-            <button type="button" onclick="openProjectModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-4 py-2 rounded-xl shadow transition flex items-center gap-2 cursor-pointer">
-                <i class="fa-solid fa-plus"></i> เพิ่มโครงการใหม่
-            </button>
+    </div>
+    <div class="header-actions">
+        <div id="sync-status" style="font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 0.75rem; background: #1e40af; color: #bfdbfe; display: flex; align-items: center; gap: 0.5rem; border: 1px solid #1d4ed8;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #34d399;"></span>
+            <span>เชื่อมต่อ Google Sheets แล้ว</span>
         </div>
+        <button type="button" onclick="toggleSidebar()" class="btn btn-blue">🗂️ ซ่อน/แสดงตัวกรอง</button>
+        <button type="button" onclick="openHolidayModal()" class="btn btn-amber">📅 จัดการวันหยุด</button>
+        <button type="button" onclick="openProjectModal()" class="btn btn-emerald">➕ เพิ่มโครงการใหม่</button>
     </div>
 </header>
 
-<div class="max-w-[96%] mx-auto px-4 py-6 flex-1 w-full flex flex-col lg:flex-row gap-6 items-start">
-    
+<div class="main-container">
     <!-- Left Filter Pane -->
-    <aside id="filter-sidebar" class="w-full lg:w-80 shrink-0 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 h-fit flex flex-col gap-5 sticky top-24 transition-all duration-300">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h2 class="font-bold text-slate-700 flex items-center gap-2 text-base">
-                <i class="fa-solid fa-filter text-blue-600"></i> ตัวกรองข้อมูล
-            </h2>
-            <button type="button" onclick="resetFilters()" class="text-xs text-blue-600 hover:underline font-medium cursor-pointer">ล้างค่าทั้งหมด</button>
+    <aside id="filter-sidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+            <h3 style="font-weight: bold; font-size: 0.95rem; color: #334155;">🔍 ตัวกรองข้อมูล</h3>
+            <button type="button" onclick="resetFilters()" style="font-size: 0.75rem; color: #2563eb; background: none; border: none; cursor: pointer; font-weight: 500;">ล้างค่าทั้งหมด</button>
         </div>
-
         <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">ค้นหาโครงการ / เลขที่สัญญา</label>
-            <div class="relative">
-                <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-sm"></i>
-                <input type="text" id="filter-search" oninput="applyFilters()" placeholder="พิมพ์ค้นหา..." class="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition">
-            </div>
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.35rem;">ค้นหาโครงการ / เลขที่สัญญา</label>
+            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="พิมพ์ค้นหา...">
         </div>
-
         <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">ปีงบประมาณ (2570 - 2575)</label>
-            <select id="filter-year" onchange="applyFilters()" class="w-full py-2.5 px-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.35rem;">ปีงบประมาณ</label>
+            <select id="filter-year" onchange="applyFilters()">
                 <option value="">ทั้งหมด</option>
             </select>
         </div>
-
         <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">ประเภทงบประมาณ</label>
-            <select id="filter-budget-type" onchange="applyFilters()" class="w-full py-2.5 px-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.35rem;">ประเภทงบประมาณ</label>
+            <select id="filter-budget-type" onchange="applyFilters()">
                 <option value="">ทั้งหมด</option>
                 <option value="งบทำการ">งบทำการ</option>
                 <option value="งบลงทุน">งบลงทุน</option>
             </select>
         </div>
-
         <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">ประเภทงาน</label>
-            <select id="filter-work-type" onchange="applyFilters()" class="w-full py-2.5 px-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.35rem;">ประเภทงาน</label>
+            <select id="filter-work-type" onchange="applyFilters()">
                 <option value="">ทั้งหมด</option>
                 <option value="ซื้อ">ซื้อ</option>
                 <option value="จ้าง">จ้าง</option>
@@ -72,10 +72,9 @@
                 <option value="เช่า">เช่า</option>
             </select>
         </div>
-
         <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">วิธีการจัดหา</label>
-            <select id="filter-procurement" onchange="applyFilters()" class="w-full py-2.5 px-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition">
+            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: #475569; margin-bottom: 0.35rem;">วิธีการจัดหา</label>
+            <select id="filter-procurement" onchange="applyFilters()">
                 <option value="">ทั้งหมด</option>
                 <option value="วิธี E-bidding">วิธี E-bidding</option>
                 <option value="วิธีเฉพาะเจาะจงไม่เกิน 5 แสนบาท">วิธีเฉพาะเจาะจงไม่เกิน 5 แสนบาท</option>
@@ -83,166 +82,131 @@
         </div>
     </aside>
 
-    <main class="flex-1 flex flex-col gap-6 w-full min-w-0">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 1.5rem; width: 100%; min-width: 0;">
+        <div class="grid-3">
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <p class="text-xs text-slate-500 font-medium">จำนวนโครงการทั้งหมด</p>
-                    <h3 id="kpi-total" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                    <p style="font-size: 0.75rem; color: #64748b; font-weight: 500;">จำนวนโครงการทั้งหมด</p>
+                    <h3 id="kpi-total" style="font-size: 1.5rem; font-weight: bold; color: #1e293b; margin-top: 0.25rem;">0</h3>
                 </div>
-                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl shadow-inner">
-                    <i class="fa-solid fa-folder-open"></i>
-                </div>
+                <div style="width: 3rem; height: 3rem; background: #eff6ff; color: #2563eb; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">📁</div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <p class="text-xs text-slate-500 font-medium">งบประมาณรวม (บาท)</p>
-                    <h3 id="kpi-budget" class="text-xl font-bold text-slate-800 mt-1">0.00</h3>
+                    <p style="font-size: 0.75rem; color: #64748b; font-weight: 500;">งบประมาณรวม (บาท)</p>
+                    <h3 id="kpi-budget" style="font-size: 1.25rem; font-weight: bold; color: #1e293b; margin-top: 0.25rem;">0.00</h3>
                 </div>
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl shadow-inner">
-                    <i class="fa-solid fa-coins"></i>
-                </div>
+                <div style="width: 3rem; height: 3rem; background: #ecfdf5; color: #059669; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">💰</div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <p class="text-xs text-slate-500 font-medium">สถานะระบบ</p>
-                    <h3 class="text-lg font-bold text-blue-900 mt-1">พร้อมใช้งาน</h3>
+                    <p style="font-size: 0.75rem; color: #64748b; font-weight: 500;">สถานะระบบ</p>
+                    <h3 style="font-size: 1.1rem; font-weight: bold; color: #1e3a8a; margin-top: 0.25rem;">พร้อมใช้งาน</h3>
                 </div>
-                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl shadow-inner">
-                    <i class="fa-solid fa-timeline"></i>
-                </div>
+                <div style="width: 3rem; height: 3rem; background: #fffbeb; color: #d97706; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">⏱️</div>
             </div>
         </div>
 
         <!-- Project Matrix Section -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col flex-1 overflow-hidden">
-            <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="padding: 1.25rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                 <div>
-                    <h2 class="font-bold text-slate-800 text-lg">รายการโครงการ</h2>
-                    <p class="text-xs text-slate-500">แสดงแผน/คาดการณ์ (คำนวณวันทำการเว้นวันหยุดเสาร์-อาทิตย์และวันหยุดนักขัตฤกษ์), แล้วเสร็จจริง และสถานะล่าช้า/เร็วกว่ากำหนด</p>
+                    <h2 style="font-weight: bold; font-size: 1.1rem; color: #1e293b;">รายการโครงการ</h2>
+                    <p style="font-size: 0.75rem; color: #64748b;">แสดงแผน/คาดการณ์ (คำนวณวันทำการเว้นวันหยุด), แล้วเสร็จจริง และสถานะล่าช้า/เร็วกว่ากำหนด</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <button type="button" onclick="fetchDataFromGoogleSheet()" id="sync-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-3.5 py-2 rounded-xl transition flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-rotate"></i> โหลดข้อมูลใหม่
-                    </button>
-                </div>
+                <button type="button" onclick="fetchDataFromGoogleSheet()" class="btn btn-slate" style="font-size: 0.75rem;">🔄 โหลดข้อมูลใหม่</button>
             </div>
 
-            <div id="projects-matrix-container" class="p-6 space-y-8 overflow-x-auto flex-1 bg-slate-50/50">
+            <div id="projects-matrix-container" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; background: #f8fafc;">
                 <!-- Dynamic Matrix Content -->
             </div>
-
-            <div class="p-4 border-t border-slate-200 bg-white text-xs text-slate-600 space-y-1">
-                <div class="font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-info text-blue-600 mr-1"></i> หมายเหตุ:</div>
-                <p>• <strong>แผน/คาดการณ์</strong> คือ เป็นแผนที่เกิดจากการคำนวณตั้งแต่วันเพิ่ม/บันทึกโครงการ โดยข้ามวันเสาร์-อาทิตย์ และวันหยุดพิเศษที่ตั้งค่าไว้</p>
-                <p>• <strong>แล้วเสร็จจริง</strong> คือ วันที่ผู้ใช้งานกรอกวันที่แล้วเสร็จจริง สีเขียวคือ แล้วเสร็จ สีเหลือง คือ อยู่ระหว่างดำเนินการ</p>
-                <p>• <strong>ถ้าล่าช้า</strong> ใส่ตัวหนังสือสีแดง พร้อมระบุจำนวนวัน</p>
-            </div>
         </div>
-    </main>
+    </div>
 </div>
 
 <!-- Holiday Modal -->
-<div id="holiday-modal" style="display: none;" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden my-8">
-        <div class="bg-amber-800 text-white p-5 flex justify-between items-center">
-            <h3 class="font-bold text-lg flex items-center gap-2">
-                <i class="fa-solid fa-calendar-days"></i> จัดการวันหยุดนักขัตฤกษ์และวันหยุดพิเศษ
-            </h3>
-            <button type="button" onclick="closeHolidayModal()" class="text-amber-200 hover:text-white text-xl cursor-pointer">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+<div id="holiday-modal" class="modal">
+    <div class="modal-content" style="max-width: 650px;">
+        <div style="background: #b45309; color: white; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-weight: bold; font-size: 1rem;">📅 จัดการวันหยุดนักขัตฤกษ์และวันหยุดพิเศษ</h3>
+            <button type="button" onclick="closeHolidayModal()" style="background:none; border:none; color:white; font-size: 1.25rem; cursor:pointer;">✕</button>
         </div>
-        
-        <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-            <form id="holiday-form" onsubmit="handleHolidaySubmit(event)" class="bg-amber-50 border border-amber-200 p-4 rounded-xl space-y-3">
-                <h4 class="text-xs font-bold text-amber-900"><i class="fa-solid fa-plus-circle"></i> เพิ่มวันหยุดพิเศษ/นักขัตฤกษ์เพิ่มเติม</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+            <form id="holiday-form" onsubmit="handleHolidaySubmit(event)" style="background: #fffbeb; border: 1px solid #fde68a; padding: 1rem; border-radius: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <h4 style="font-size: 0.8rem; font-weight: bold; color: #92400e;">➕ เพิ่มวันหยุดพิเศษ/นักขัตฤกษ์</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                     <div>
-                        <label class="block text-xs font-medium text-amber-800 mb-1">วันที่หยุด <span class="text-rose-500">*</span></label>
-                        <input type="date" id="holiday-date" required class="w-full px-3 py-2 text-xs bg-white border border-amber-300 rounded-xl focus:outline-none focus:border-amber-500">
+                        <label style="font-size: 0.75rem; font-weight: 500; color: #92400e; display: block; margin-bottom: 0.25rem;">วันที่หยุด *</label>
+                        <input type="date" id="holiday-date" required style="background: white;">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-amber-800 mb-1">ชื่อวันหยุด / รายละเอียด <span class="text-rose-500">*</span></label>
-                        <input type="text" id="holiday-desc" required placeholder="เช่น วันหยุดชดเชยพิเศษ" class="w-full px-3 py-2 text-xs bg-white border border-amber-300 rounded-xl focus:outline-none focus:border-amber-500">
+                        <label style="font-size: 0.75rem; font-weight: 500; color: #92400e; display: block; margin-bottom: 0.25rem;">รายละเอียด *</label>
+                        <input type="text" id="holiday-desc" required placeholder="เช่น วันหยุดชดเชยพิเศษ" style="background: white;">
                     </div>
                 </div>
-                <div class="flex justify-end pt-1">
-                    <button type="submit" class="px-4 py-2 bg-amber-700 hover:bg-amber-600 text-white text-xs font-medium rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-save"></i> บันทึกวันหยุดนี้
-                    </button>
+                <div style="text-align: right;">
+                    <button type="submit" class="btn btn-amber" style="font-size: 0.75rem;">💾 บันทึกวันหยุด</button>
                 </div>
             </form>
-
             <div>
-                <h4 class="text-xs font-bold text-slate-700 mb-2 flex items-center justify-between">
-                    <span>รายการวันหยุดเพิ่มเติมที่คุณบันทึกไว้</span>
-                    <span id="custom-holiday-count" class="text-[11px] bg-slate-100 px-2 py-0.5 rounded-full text-slate-600">0 รายการ</span>
+                <h4 style="font-size: 0.8rem; font-weight: bold; color: #334155; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                    <span>รายการวันหยุดเพิ่มเติม</span>
+                    <span id="custom-holiday-count" style="font-size: 0.7rem; background: #e2e8f0; padding: 0.15rem 0.5rem; border-radius: 999px;">0 รายการ</span>
                 </h4>
-                <div class="border border-slate-200 rounded-xl overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                <div style="border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden;">
+                    <table>
+                        <thead>
                             <tr>
-                                <th class="p-3">วันที่</th>
-                                <th class="p-3">รายละเอียดวันหยุด</th>
-                                <th class="p-3 text-center w-20">จัดการ</th>
+                                <th>วันที่</th>
+                                <th>รายละเอียดวันหยุด</th>
+                                <th style="text-align: center; width: 80px;">จัดการ</th>
                             </tr>
                         </thead>
-                        <tbody id="custom-holiday-tbody">
-                            <!-- Dynamic custom holidays -->
-                        </tbody>
+                        <tbody id="custom-holiday-tbody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
-            <button type="button" onclick="closeHolidayModal()" class="px-5 py-2 text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl transition cursor-pointer">ปิดหน้าต่าง</button>
+        <div style="padding: 1rem; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: right;">
+            <button type="button" onclick="closeHolidayModal()" class="btn btn-slate" style="font-size: 0.75rem;">ปิดหน้าต่าง</button>
         </div>
     </div>
 </div>
 
 <!-- Project Modal -->
-<div id="project-modal" style="display: none;" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden my-8">
-        <div class="bg-blue-900 text-white p-5 flex justify-between items-center">
-            <h3 id="modal-title" class="font-bold text-lg flex items-center gap-2">
-                <i class="fa-solid fa-file-contract"></i> เพิ่มโครงการสัญญาจ้างใหม่
-            </h3>
-            <button type="button" onclick="closeProjectModal()" class="text-blue-200 hover:text-white text-xl cursor-pointer">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+<div id="project-modal" class="modal">
+    <div class="modal-content">
+        <div style="background: #1e3a8a; color: white; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
+            <h3 id="modal-title" style="font-weight: bold; font-size: 1rem;">📄 เพิ่มโครงการสัญญาจ้างใหม่</h3>
+            <button type="button" onclick="closeProjectModal()" style="background:none; border:none; color:white; font-size: 1.25rem; cursor:pointer;">✕</button>
         </div>
-        
-        <form id="project-form" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <form id="project-form" onsubmit="handleFormSubmit(event)" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
             <input type="hidden" id="edit-index" value="">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">เลขที่โครงการ / สัญญา <span class="text-rose-500">*</span></label>
-                    <input type="text" id="proj-no" required placeholder="เช่น WLM-2570-001" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                    <label style="font-size: 0.75rem; font-weight: 500; color: #475569; display: block; margin-bottom: 0.25rem;">เลขที่โครงการ / สัญญา *</label>
+                    <input type="text" id="proj-no" required placeholder="เช่น WLM-2570-001">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">ปีงบประมาณ <span class="text-rose-500">*</span></label>
-                    <input type="number" id="proj-year" required value="2570" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                    <label style="font-size: 0.75rem; font-weight: 500; color: #475569; display: block; margin-bottom: 0.25rem;">ปีงบประมาณ *</label>
+                    <input type="number" id="proj-year" required value="2570">
                 </div>
             </div>
-
             <div>
-                <label class="block text-xs font-medium text-slate-600 mb-1">ชื่อโครงการ <span class="text-rose-500">*</span></label>
-                <textarea id="proj-name" required rows="2" placeholder="ระบุชื่อโครงการ..." class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"></textarea>
+                <label style="font-size: 0.75rem; font-weight: 500; color: #475569; display: block; margin-bottom: 0.25rem;">ชื่อโครงการ *</label>
+                <textarea id="proj-name" required rows="2" placeholder="ระบุชื่อโครงการ..."></textarea>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">ประเภทงบประมาณ <span class="text-rose-500">*</span></label>
-                    <select id="proj-budget-type" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                    <label style="font-size: 0.75rem; font-weight: 500; color: #475569; display: block; margin-bottom: 0.25rem;">ประเภทงบประมาณ *</label>
+                    <select id="proj-budget-type">
                         <option value="งบทำการ">งบทำการ</option>
                         <option value="งบลงทุน">งบลงทุน</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">ประเภทงาน <span class="text-rose-500">*</span></label>
-                    <select id="proj-work-type" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                    <label style="font-size: 0.75rem; font-weight: 500; color: #475569; display: block; margin-bottom: 0.25rem;">ประเภทงาน *</label>
+                    <select id="proj-work-type">
                         <option value="ซื้อ">ซื้อ</option>
                         <option value="จ้าง">จ้าง</option>
                         <option value="จ้างก่อสร้าง">จ้างก่อสร้าง</option>
@@ -250,72 +214,53 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">งบประมาณ (บาท) <span class="text-rose-500">*</span></label>
-                    <input type="number" step="0.01" id="proj-budget" required placeholder="0.00" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                    <label style="font-size: 0.75rem; font-weight: 500; color: #475569; display: block; margin-bottom: 0.25rem;">งบประมาณ (บาท) *</label>
+                    <input type="number" step="0.01" id="proj-budget" required placeholder="0.00">
                 </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; border-top: 1px solid #f1f5f9; padding-top: 0.75rem;">
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">วิธีการจัดหา <span class="text-rose-500">*</span></label>
-                    <select id="proj-procurement" onchange="onProcurementChange()" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
+                    <label style="font-size: 0.75rem; font-weight: 500; color: #475569; display: block; margin-bottom: 0.25rem;">วิธีการจัดหา *</label>
+                    <select id="proj-procurement" onchange="onProcurementChange()">
                         <option value="วิธี E-bidding">วิธี E-bidding</option>
                         <option value="วิธีเฉพาะเจาะจงไม่เกิน 5 แสนบาท">วิธีเฉพาะเจาะจงไม่เกิน 5 แสนบาท</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">ขั้นตอนปัจจุบัน <span class="text-rose-500">*</span></label>
-                    <select id="proj-current-step" class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500">
-                        <!-- Populated dynamically -->
-                    </select>
+                    <label style="font-size: 0.75rem; font-weight: 500; color: #475569; display: block; margin-bottom: 0.25rem;">ขั้นตอนปัจจุบัน *</label>
+                    <select id="proj-current-step"></select>
                 </div>
             </div>
-
-            <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl space-y-3">
-                <h4 class="text-xs font-bold text-emerald-900"><i class="fa-solid fa-calendar-check"></i> กำหนดวันเริ่มต้นและแผนการดำเนินงานแต่ละขั้นตอน</h4>
+            <div style="background: #ecfdf5; border: 1px solid #a7f3d0; padding: 1rem; border-radius: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <h4 style="font-size: 0.8rem; font-weight: bold; color: #065f46;">📅 กำหนดวันเริ่มต้นและแผนการดำเนินงาน</h4>
                 <div>
-                    <label class="block text-xs font-medium text-emerald-800 mb-1">วันที่เริ่มต้นโครงการ (ใช้อ้างอิงคำนวณขั้นแรก)</label>
-                    <input type="date" id="proj-start-date" class="w-full sm:w-64 px-3 py-1.5 bg-white border border-emerald-300 rounded-xl text-xs focus:outline-none focus:border-emerald-500">
+                    <label style="font-size: 0.75rem; font-weight: 500; color: #047857; display: block; margin-bottom: 0.25rem;">วันที่เริ่มต้นโครงการ</label>
+                    <input type="date" id="proj-start-date" style="background: white; width: 220px;">
                 </div>
-                <div class="text-[11px] text-emerald-800 font-medium pt-1">
-                    เลือกรูปแบบแผน: เลือกได้ว่าจะกรอกเป็น <span class="bg-blue-200 px-1.5 py-0.5 rounded text-blue-900">ระยะเวลา (วันทำการ/วันปฏิทิน)</span> หรือ <span class="bg-purple-200 px-1.5 py-0.5 rounded text-purple-900">ระบุวันที่สิ้นสุด</span> พร้อมกรอก <span class="bg-amber-200 px-1.5 py-0.5 rounded text-amber-900">วันที่แล้วเสร็จจริง</span>
-                </div>
-                <div id="step-planning-container" class="space-y-2 pt-2 border-t border-emerald-200/60">
-                    <!-- Populated dynamically -->
-                </div>
+                <div id="step-planning-container" style="display: flex; flex-direction: column; gap: 0.5rem; border-top: 1px solid #a7f3d0; padding-top: 0.75rem;"></div>
             </div>
-
-            <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 1rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
                 <div>
-                    <h4 class="text-xs font-bold text-amber-900"><i class="fa-solid fa-lock"></i> ยืนยันรหัสผ่านก่อนบันทึกข้อมูล</h4>
-                    <p class="text-[11px] text-amber-700">กรุณากรอกรหัสผ่าน 4 หลัก เพื่อบันทึกหรือแก้ไขข้อมูล (รหัส: 1698)</p>
+                    <h4 style="font-size: 0.8rem; font-weight: bold; color: #92400e;">🔒 ยืนยันรหัสผ่านก่อนบันทึก</h4>
+                    <p style="font-size: 0.7rem; color: #b45309;">รหัสผ่าน: 1698</p>
                 </div>
-                <div class="w-full sm:w-auto">
-                    <input type="password" id="auth-password" required maxlength="4" placeholder="รหัสผ่าน 4 หลัก" class="w-full sm:w-36 px-3 py-2 text-sm bg-white border border-amber-300 rounded-xl text-center focus:outline-none focus:border-amber-500 font-bold tracking-widest">
-                </div>
+                <input type="password" id="auth-password" required maxlength="4" placeholder="รหัสผ่าน 4 หลัก" style="width: 140px; background: white; text-align: center; font-weight: bold; letter-spacing: 0.2em;">
             </div>
-
-            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                <button type="button" onclick="closeProjectModal()" class="px-5 py-2 text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition cursor-pointer">ยกเลิก</button>
-                <button type="submit" class="px-5 py-2 text-sm bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl shadow transition flex items-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-save"></i> บันทึกข้อมูล
-                </button>
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid #f1f5f9; padding-top: 1rem;">
+                <button type="button" onclick="closeProjectModal()" class="btn btn-slate" style="font-size: 0.85rem;">ยกเลิก</button>
+                <button type="submit" class="btn btn-blue" style="font-size: 0.85rem;">💾 บันทึกข้อมูล</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Alert Modal -->
-<div id="alert-modal" style="display: none;" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 text-center space-y-4">
-        <div id="alert-icon" class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto">
-            <i class="fa-solid fa-circle-info"></i>
-        </div>
-        <div>
-            <h3 id="alert-title" class="font-bold text-lg text-slate-800">แจ้งเตือน</h3>
-            <p id="alert-message" class="text-xs text-slate-500 mt-1">ข้อความแจ้งเตือน...</p>
-        </div>
-        <button type="button" onclick="closeAlert()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-xl transition cursor-pointer">ตกลง</button>
+<div id="alert-modal" class="modal">
+    <div class="modal-content" style="max-width: 400px; padding: 1.5rem; text-align: center;">
+        <div id="alert-icon" style="width: 3.5rem; height: 3.5rem; background: #eff6ff; color: #2563eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1rem;">ℹ️</div>
+        <h3 id="alert-title" style="font-weight: bold; font-size: 1.1rem; margin-bottom: 0.5rem;">แจ้งเตือน</h3>
+        <p id="alert-message" style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.25rem;">ข้อความแจ้งเตือน...</p>
+        <button type="button" onclick="closeAlert()" class="btn btn-blue" style="width: 100%; justify-content: center;">ตกลง</button>
     </div>
 </div>
 
@@ -323,52 +268,27 @@
     // แทนที่ URL ของ Google Apps Script Web App ที่นี่
     const googleScriptUrl = "https://script.google.com/macros/s/AKfycbzX1TEY2vrIIYVuoYesI72OdOiCAd32a7yGJKs2i3vh5cySZYrwZ2IyRs7IXAzJ-eFA/exec";
 
-    const STEPS_E_BIDDING = [
-        "อนุมัติงบ", "TOR", "ราคากลาง", "ร่างประกาศ", 
-        "ประกาศเชิญชวน", "พิจารณาผล", "อุทธรณ์", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"
-    ];
-
-    const STEPS_SPECIFIC = [
-        "อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", 
-        "ออกคำสั่งแต่งตั้ง", "พิจารณาผล", "จัดทำข้อตกลง", "ลงนาม"
-    ];
+    const STEPS_E_BIDDING = ["อนุมัติงบ", "TOR", "ราคากลาง", "ร่างประกาศ", "ประกาศเชิญชวน", "พิจารณาผล", "อุทธรณ์", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"];
+    const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", "ออกคำสั่งแต่งตั้ง", "พิจารณาผล", "จัดทำข้อตกลง", "ลงนาม"];
 
     const DEFAULT_DURATIONS_E_BIDDING = {
-        "อนุมัติงบ": { days: 10, dayType: "วันทำการ" },
-        "TOR": { days: 15, dayType: "วันทำการ" },
-        "ราคากลาง": { days: 10, dayType: "วันทำการ" },
-        "ร่างประกาศ": { days: 5, dayType: "วันทำการ" },
-        "ประกาศเชิญชวน": { days: 20, dayType: "วันปฏิทิน" },
-        "พิจารณาผล": { days: 15, dayType: "วันทำการ" },
-        "อุทธรณ์": { days: 7, dayType: "วันปฏิทิน" },
-        "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันทำการ" },
-        "ลงนาม": { days: 3, dayType: "วันทำการ" }
+        "อนุมัติงบ": { days: 10, dayType: "วันทำการ" }, "TOR": { days: 15, dayType: "วันทำการ" },
+        "ราคากลาง": { days: 10, dayType: "วันทำการ" }, "ร่างประกาศ": { days: 5, dayType: "วันทำการ" },
+        "ประกาศเชิญชวน": { days: 20, dayType: "วันปฏิทิน" }, "พิจารณาผล": { days: 15, dayType: "วันทำการ" },
+        "อุทธรณ์": { days: 7, dayType: "วันปฏิทิน" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันทำการ" }, "ลงนาม": { days: 3, dayType: "วันทำการ" }
     };
 
     const DEFAULT_DURATIONS_SPECIFIC = {
-        "อนุมัติงบ": { days: 7, dayType: "วันทำการ" },
-        "TOR": { days: 10, dayType: "วันทำการ" },
-        "ราคากลาง": { days: 7, dayType: "วันทำการ" },
-        "รายงานขอซื้อ/จ้าง": { days: 3, dayType: "วันทำการ" },
-        "ออกคำสั่งแต่งตั้ง": { days: 3, dayType: "วันทำการ" },
-        "พิจารณาผล": { days: 10, dayType: "วันทำการ" },
-        "จัดทำข้อตกลง": { days: 5, dayType: "วันทำการ" },
-        "ลงนาม": { days: 2, dayType: "วันทำการ" }
+        "อนุมัติงบ": { days: 7, dayType: "วันทำการ" }, "TOR": { days: 10, dayType: "วันทำการ" },
+        "ราคากลาง": { days: 7, dayType: "วันทำการ" }, "รายงานขอซื้อ/จ้าง": { days: 3, dayType: "วันทำการ" },
+        "ออกคำสั่งแต่งตั้ง": { days: 3, dayType: "วันทำการ" }, "พิจารณาผล": { days: 10, dayType: "วันทำการ" },
+        "จัดทำข้อตกลง": { days: 5, dayType: "วันทำการ" }, "ลงนาม": { days: 2, dayType: "วันทำการ" }
     };
-    
-    // ฐานข้อมูลวันหยุดนักขัตฤกษ์เริ่มต้น
+
     const DEFAULT_THAI_HOLIDAYS = new Set([
-        "2025-01-01", "2025-01-02", "2025-02-12", "2025-04-07", "2025-04-14", "2025-04-15", 
-        "2025-05-01", "2025-05-05", "2025-05-12", "2025-06-02", "2025-06-03", "2025-07-10", 
-        "2025-07-28", "2025-08-11", "2025-08-12", "2025-10-13", "2025-10-23", "2025-12-05", 
-        "2025-12-10", "2025-12-31",
-        "2026-01-01", "2026-01-02", "2026-03-03", "2026-04-06", "2026-04-13", "2026-04-14", 
-        "2026-04-15", "2026-05-01", "2026-05-04", "2026-06-01", "2026-06-03", "2026-07-28", 
-        "2026-07-29", "2026-08-12", "2026-10-13", "2026-10-16", "2026-10-23", "2026-12-07", 
-        "2026-12-10", "2026-12-31",
-        "2027-01-01", "2027-04-06", "2027-04-13", "2027-04-14", "2027-04-15", "2027-05-01", 
-        "2027-05-04", "2027-06-03", "2027-07-19", "2027-07-28", "2027-08-12", "2027-10-13", 
-        "2027-10-25", "2027-12-06", "2027-12-10", "2027-12-31"
+        "2025-01-01", "2025-01-02", "2025-02-12", "2025-04-07", "2025-04-14", "2025-04-15", "2025-05-01", "2025-05-05", "2025-05-12", "2025-06-02", "2025-06-03", "2025-07-10", "2025-07-28", "2025-08-11", "2025-08-12", "2025-10-13", "2025-10-23", "2025-12-05", "2025-12-10", "2025-12-31",
+        "2026-01-01", "2026-01-02", "2026-03-03", "2026-04-06", "2026-04-13", "2026-04-14", "2026-04-15", "2026-05-01", "2026-05-04", "2026-06-01", "2026-06-03", "2026-07-28", "2026-07-29", "2026-08-12", "2026-10-13", "2026-10-16", "2026-10-23", "2026-12-07", "2026-12-10", "2026-12-31",
+        "2027-01-01", "2027-04-06", "2027-04-13", "2027-04-14", "2027-04-15", "2027-05-01", "2027-05-04", "2027-06-03", "2027-07-19", "2027-07-28", "2027-08-12", "2027-10-13", "2027-10-25", "2027-12-06", "2027-12-10", "2027-12-31"
     ]);
 
     let customHolidays = [];
@@ -377,22 +297,12 @@
     function loadCustomHolidays() {
         try {
             const saved = localStorage.getItem('wlm_custom_holidays');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed)) customHolidays = parsed;
-            }
-        } catch(e) {
-            console.error("Load custom holidays error:", e);
-            customHolidays = [];
-        }
+            if (saved) customHolidays = JSON.parse(saved);
+        } catch(e) { customHolidays = []; }
     }
 
     function saveCustomHolidays() {
-        try {
-            localStorage.setItem('wlm_custom_holidays', JSON.stringify(customHolidays));
-        } catch(e) {
-            console.error("Save custom holidays error:", e);
-        }
+        localStorage.setItem('wlm_custom_holidays', JSON.stringify(customHolidays));
     }
 
     function isThaiHoliday(dateObj) {
@@ -400,30 +310,18 @@
         const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
         const dd = String(dateObj.getDate()).padStart(2, '0');
         const dateStr = `${yyyy}-${mm}-${dd}`;
-        
-        if (DEFAULT_THAI_HOLIDAYS.has(dateStr)) return true;
-        if (customHolidays.some(h => h.date === dateStr)) return true;
-        return false;
+        return DEFAULT_THAI_HOLIDAYS.has(dateStr) || customHolidays.some(h => h.date === dateStr);
     }
 
     function saveToLocalStorage() {
-        try {
-            localStorage.setItem('wlm_projects_data', JSON.stringify(projects));
-        } catch(e) {
-            console.error("Local Storage Save Error:", e);
-        }
+        localStorage.setItem('wlm_projects_data', JSON.stringify(projects));
     }
 
     function loadFromLocalStorage() {
         try {
             const saved = localStorage.getItem('wlm_projects_data');
-            if (saved) {
-                const parsedData = JSON.parse(saved);
-                if (Array.isArray(parsedData)) projects = parsedData;
-            }
-        } catch(e) {
-            console.error("Local Storage Load Error:", e);
-        }
+            if (saved) projects = JSON.parse(saved);
+        } catch(e) { projects = []; }
     }
 
     window.onload = function() {
@@ -431,7 +329,6 @@
         loadCustomHolidays();
         populateYearFilter();
         updateDashboard();
-        
         if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
             fetchDataFromGoogleSheet();
         }
@@ -441,37 +338,28 @@
         renderCustomHolidayTable();
         document.getElementById('holiday-modal').style.display = 'flex';
     }
-
-    function closeHolidayModal() {
-        document.getElementById('holiday-modal').style.display = 'none';
-    }
+    function closeHolidayModal() { document.getElementById('holiday-modal').style.display = 'none'; }
 
     function handleHolidaySubmit(event) {
         event.preventDefault();
         const dateVal = document.getElementById('holiday-date').value;
         const descVal = document.getElementById('holiday-desc').value.trim();
-
         if (!dateVal || !descVal) return;
-
         if (customHolidays.some(h => h.date === dateVal)) {
             showAlert("วันที่ซ้ำ", "มีวันหยุดวันนี้ในระบบแล้ว", "error");
             return;
         }
-
         const holidayObj = { date: dateVal, desc: descVal };
         customHolidays.push(holidayObj);
         customHolidays.sort((a, b) => new Date(a.date) - new Date(b.date));
         saveCustomHolidays();
-
         document.getElementById('holiday-form').reset();
         renderCustomHolidayTable();
         updateDashboard();
-
-        // ส่งข้อมูลวันหยุดไปซิงค์กับ Google Sheets Backend
         if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
             sendDataToGoogleSheet({ action: "add_holiday", ...holidayObj });
         } else {
-            showAlert("บันทึกสำเร็จ", "เพิ่มวันหยุดพิเศษเรียบร้อยแล้ว ระบบนำไปคำนวณใหม่ทันที", "success");
+            showAlert("บันทึกสำเร็จ", "เพิ่มวันหยุดพิเศษเรียบร้อยแล้ว", "success");
         }
     }
 
@@ -480,8 +368,6 @@
         saveCustomHolidays();
         renderCustomHolidayTable();
         updateDashboard();
-
-        // ส่งลบข้อมูลวันหยุดไปยัง Google Sheets Backend
         if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
             sendDataToGoogleSheet({ action: "delete_holiday", date: dateStr });
         } else {
@@ -494,29 +380,20 @@
         const countEl = document.getElementById('custom-holiday-count');
         tbody.innerHTML = "";
         countEl.innerText = `${customHolidays.length} รายการ`;
-
         if (customHolidays.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-400">ยังไม่มีวันหยุดพิเศษที่คุณเพิ่ม</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #94a3b8; padding: 1rem;">ยังไม่มีวันหยุดพิเศษที่คุณเพิ่ม</td></tr>`;
             return;
         }
-
         customHolidays.forEach(h => {
             const tr = document.createElement('tr');
-            tr.className = "border-b border-slate-100 hover:bg-slate-50";
-            
             let formattedDate = h.date;
             try {
                 formattedDate = new Date(h.date).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
             } catch(e) {}
-
             tr.innerHTML = `
-                <td class="p-3 font-semibold text-slate-700">${formattedDate}</td>
-                <td class="p-3 text-slate-600">${h.desc}</td>
-                <td class="p-3 text-center">
-                    <button type="button" onclick="deleteCustomHoliday('${h.date}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-2.5 py-1 rounded-lg text-xs transition cursor-pointer" title="ลบวันหยุดนี้">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </td>
+                <td style="font-weight: 500;">${formattedDate}</td>
+                <td>${h.desc}</td>
+                <td style="text-align: center;"><button type="button" onclick="deleteCustomHoliday('${h.date}')" class="btn btn-rose" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">🗑️ ลบ</button></td>
             `;
             tbody.appendChild(tr);
         });
@@ -525,67 +402,41 @@
     function showAlert(title, message, type = "info") {
         document.getElementById('alert-title').innerText = title;
         document.getElementById('alert-message').innerText = message;
-        const iconEl = document.getElementById('alert-icon');
-        if (type === "success") {
-            iconEl.className = "w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto";
-            iconEl.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-        } else if (type === "error") {
-            iconEl.className = "w-16 h-16 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center text-3xl mx-auto";
-            iconEl.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
-        } else {
-            iconEl.className = "w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto";
-            iconEl.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
-        }
         document.getElementById('alert-modal').style.display = 'flex';
     }
-
-    function closeAlert() {
-        document.getElementById('alert-modal').style.display = 'none';
-    }
+    function closeAlert() { document.getElementById('alert-modal').style.display = 'none'; }
 
     function openProjectModal(isEdit = false, id = null) {
-        try {
-            const modal = document.getElementById('project-modal');
-            if (!modal) return;
-            modal.style.display = 'flex';
-
-            const todayStr = new Date().toISOString().split('T')[0];
-            if (isEdit && id) {
-                document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูลโครงการ';
-                const p = projects.find(item => String(item.id) === String(id));
-                if (p) {
-                    document.getElementById('edit-index').value = p.id;
-                    document.getElementById('proj-no').value = p.id;
-                    document.getElementById('proj-no').disabled = true;
-                    document.getElementById('proj-year').value = p.year || "2570";
-                    document.getElementById('proj-name').value = p.name || "";
-                    document.getElementById('proj-budget-type').value = p.budgetType || "งบทำการ";
-                    document.getElementById('proj-work-type').value = p.workType || "ซื้อ";
-                    document.getElementById('proj-budget').value = p.budget || "";
-                    document.getElementById('proj-procurement').value = p.procurement || "วิธี E-bidding";
-                    document.getElementById('proj-start-date').value = p.projectStartDate || todayStr;
-                    onProcurementChange(p.stepDurations, p.actualDates, p.stepInputModes, p.specificDates);
-                    document.getElementById('proj-current-step').value = p.currentStep || "";
-                }
-            } else {
-                document.getElementById('modal-title').innerHTML = '<i class="fa-solid fa-file-contract"></i> เพิ่มโครงการสัญญาจ้างใหม่';
-                const form = document.getElementById('project-form');
-                if (form) form.reset();
-                document.getElementById('edit-index').value = "";
-                document.getElementById('proj-no').disabled = false;
-                document.getElementById('proj-year').value = "2570";
-                document.getElementById('proj-start-date').value = todayStr;
-                onProcurementChange();
+        document.getElementById('project-modal').style.display = 'flex';
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (isEdit && id) {
+            document.getElementById('modal-title').innerText = 'แก้ไขข้อมูลโครงการ';
+            const p = projects.find(item => String(item.id) === String(id));
+            if (p) {
+                document.getElementById('edit-index').value = p.id;
+                document.getElementById('proj-no').value = p.id;
+                document.getElementById('proj-no').disabled = true;
+                document.getElementById('proj-year').value = p.year || "2570";
+                document.getElementById('proj-name').value = p.name || "";
+                document.getElementById('proj-budget-type').value = p.budgetType || "งบทำการ";
+                document.getElementById('proj-work-type').value = p.workType || "ซื้อ";
+                document.getElementById('proj-budget').value = p.budget || "";
+                document.getElementById('proj-procurement').value = p.procurement || "วิธี E-bidding";
+                document.getElementById('proj-start-date').value = p.projectStartDate || todayStr;
+                onProcurementChange(p.stepDurations, p.actualDates, p.stepInputModes, p.specificDates);
+                document.getElementById('proj-current-step').value = p.currentStep || "";
             }
-        } catch (err) {
-            console.error("Open modal error:", err);
-            showAlert("เกิดข้อผิดพลาด", "ไม่สามารถเปิดหน้าต่างได้: " + err.message, "error");
+        } else {
+            document.getElementById('modal-title').innerText = 'เพิ่มโครงการสัญญาจ้างใหม่';
+            document.getElementById('project-form').reset();
+            document.getElementById('edit-index').value = "";
+            document.getElementById('proj-no').disabled = false;
+            document.getElementById('proj-year').value = "2570";
+            document.getElementById('proj-start-date').value = todayStr;
+            onProcurementChange();
         }
     }
-
-    function closeProjectModal() {
-        document.getElementById('project-modal').style.display = 'none';
-    }
+    function closeProjectModal() { document.getElementById('project-modal').style.display = 'none'; }
 
     function onProcurementChange(savedDurations = null, savedActuals = null, savedTypes = null, savedSpecificDates = null) {
         const proc = document.getElementById('proj-procurement').value;
@@ -594,67 +445,44 @@
         const steps = proc === "วิธี E-bidding" ? STEPS_E_BIDDING : STEPS_SPECIFIC;
         steps.forEach(s => {
             const opt = document.createElement('option');
-            opt.value = s;
-            opt.textContent = s;
+            opt.value = s; opt.textContent = s;
             stepSelect.appendChild(opt);
         });
-
-        renderStepPlanningInputs(steps, 
-            savedDurations || (proc === "วิธี E-bidding" ? DEFAULT_DURATIONS_E_BIDDING : DEFAULT_DURATIONS_SPECIFIC),
-            savedActuals || {},
-            savedTypes || {},
-            savedSpecificDates || {}
-        );
+        renderStepPlanningInputs(steps, savedDurations || (proc === "วิธี E-bidding" ? DEFAULT_DURATIONS_E_BIDDING : DEFAULT_DURATIONS_SPECIFIC), savedActuals || {}, savedTypes || {}, savedSpecificDates || {});
     }
 
     function renderStepPlanningInputs(steps, durationsObj, actualsObj, typesObj, specificDatesObj) {
         const container = document.getElementById('step-planning-container');
         container.innerHTML = "";
-
         steps.forEach((s, idx) => {
-            let defaultItem = { days: 10, dayType: "วันทำการ" };
-            if (durationsObj && durationsObj[s] !== undefined) {
-                if (typeof durationsObj[s] === 'object' && durationsObj[s] !== null) {
-                    defaultItem = durationsObj[s];
-                } else {
-                    defaultItem = { days: Number(durationsObj[s]) || 10, dayType: "วันทำการ" };
-                }
-            }
-            let inputMode = (typesObj && typesObj[s]) ? typesObj[s] : "days";
-            let specificDateVal = (specificDatesObj && specificDatesObj[s]) ? specificDatesObj[s] : "";
-            let actualVal = (actualsObj && actualsObj[s]) ? actualsObj[s] : "";
+            let defaultItem = durationsObj[s] || { days: 10, dayType: "วันทำการ" };
+            let inputMode = typesObj[s] || "days";
+            let specificDateVal = specificDatesObj[s] || "";
+            let actualVal = actualsObj[s] || "";
 
             const row = document.createElement('div');
-            row.className = "bg-white p-3 rounded-xl border border-emerald-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs";
+            row.style.cssText = "background: white; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid #a7f3d0; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-size: 0.75rem;";
             row.innerHTML = `
-                <div class="w-full md:w-36 font-bold text-emerald-900 truncate" title="${s}">
-                    <i class="fa-solid fa-circle-dot text-[8px] text-emerald-600 mr-1.5"></i> ${s}
-                </div>
-                <div class="flex flex-wrap items-center gap-2 flex-1 w-full md:w-auto">
-                    <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1">
-                        <span class="text-[10px] text-slate-500 px-1">รูปแบบ:</span>
-                        <select data-step-index="${idx}" data-field="mode" onchange="toggleStepInputMode(${idx})" class="text-[11px] bg-transparent font-medium text-blue-900 focus:outline-none">
-                            <option value="days" ${inputMode === 'days' ? 'selected' : ''}>ระยะเวลา (วัน)</option>
-                            <option value="date" ${inputMode === 'date' ? 'selected' : ''}>ระบุวันที่สิ้นสุด</option>
-                        </select>
-                    </div>
-
-                    <div id="wrap-days-${idx}" class="flex items-center gap-1.5 ${inputMode === 'date' ? 'hidden' : ''}">
-                        <input type="number" min="1" data-step-index="${idx}" data-field="days" value="${defaultItem.days}" class="w-14 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs text-center focus:outline-none focus:border-blue-500">
-                        <select data-step-index="${idx}" data-field="daytype" class="text-[10px] px-2 py-1 bg-slate-50 border border-slate-200 rounded focus:outline-none focus:border-blue-500">
+                <div style="font-weight: bold; color: #065f46; width: 130px;">• ${s}</div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <select data-step-index="${idx}" data-field="mode" onchange="toggleStepInputMode(${idx})" style="font-size: 0.7rem; width: auto;">
+                        <option value="days" ${inputMode === 'days' ? 'selected' : ''}>ระยะเวลา (วัน)</option>
+                        <option value="date" ${inputMode === 'date' ? 'selected' : ''}>ระบุวันที่สิ้นสุด</option>
+                    </select>
+                    <div id="wrap-days-${idx}" style="display: ${inputMode === 'date' ? 'none' : 'flex'}; align-items: center; gap: 0.25rem;">
+                        <input type="number" min="1" data-step-index="${idx}" data-field="days" value="${defaultItem.days || 10}" style="width: 50px; text-align: center;">
+                        <select data-step-index="${idx}" data-field="daytype" style="font-size: 0.7rem; width: auto;">
                             <option value="วันทำการ" ${defaultItem.dayType === 'วันทำการ' ? 'selected' : ''}>วันทำการ</option>
                             <option value="วันปฏิทิน" ${defaultItem.dayType === 'วันปฏิทิน' ? 'selected' : ''}>วันปฏิทิน</option>
                         </select>
                     </div>
-
-                    <div id="wrap-date-${idx}" class="flex items-center gap-1.5 ${inputMode === 'days' ? 'hidden' : ''}">
-                        <input type="date" data-step-index="${idx}" data-field="specificDate" value="${specificDateVal}" class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[11px] focus:outline-none focus:border-blue-500">
+                    <div id="wrap-date-${idx}" style="display: ${inputMode === 'days' ? 'none' : 'flex'}; align-items: center;">
+                        <input type="date" data-step-index="${idx}" data-field="specificDate" value="${specificDateVal}" style="width: 130px;">
                     </div>
                 </div>
-
-                <div class="flex items-center gap-1.5 w-full md:w-auto justify-end pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
-                    <span class="text-[10px] text-amber-800 font-semibold">เสร็จจริง:</span>
-                    <input type="date" data-step-index="${idx}" data-field="actual" value="${actualVal}" class="px-2 py-1 bg-amber-50/50 border border-amber-200 rounded text-[11px] focus:outline-none focus:border-amber-500">
+                <div style="display: flex; align-items: center; gap: 0.25rem;">
+                    <span style="color: #92400e; font-weight: 500;">เสร็จจริง:</span>
+                    <input type="date" data-step-index="${idx}" data-field="actual" value="${actualVal}" style="width: 130px; background: #fffbeb;">
                 </div>
             `;
             container.appendChild(row);
@@ -665,13 +493,12 @@
         const daysWrap = document.getElementById(`wrap-days-${idx}`);
         const dateWrap = document.getElementById(`wrap-date-${idx}`);
         const modeSelect = document.querySelector(`select[data-step-index="${idx}"][data-field="mode"]`);
-        
-        if (modeSelect && modeSelect.value === 'days') {
-            if (daysWrap) { daysWrap.classList.remove('hidden'); daysWrap.style.display = 'flex'; }
-            if (dateWrap) { dateWrap.classList.add('hidden'); dateWrap.style.display = 'none'; }
+        if (modeSelect.value === 'days') {
+            daysWrap.style.display = 'flex';
+            dateWrap.style.display = 'none';
         } else {
-            if (daysWrap) { daysWrap.classList.add('hidden'); daysWrap.style.display = 'none'; }
-            if (dateWrap) { dateWrap.classList.remove('hidden'); dateWrap.style.display = 'flex'; }
+            daysWrap.style.display = 'none';
+            dateWrap.style.display = 'flex';
         }
     }
 
@@ -679,15 +506,11 @@
         let d = new Date(dateStr);
         if (isNaN(d.getTime())) d = new Date();
         d.setHours(0,0,0,0);
-
         if (dayType === "วันทำการ") {
             let added = 0;
             while (added < days) {
                 d.setDate(d.getDate() + 1);
-                const dayOfWeek = d.getDay();
-                if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isThaiHoliday(d)) {
-                    added++;
-                }
+                if (d.getDay() !== 0 && d.getDay() !== 6 && !isThaiHoliday(d)) added++;
             }
         } else {
             d.setDate(d.getDate() + days);
@@ -698,13 +521,11 @@
     function computeProjectMatrix(p) {
         const steps = p.procurement === "วิธี E-bidding" ? STEPS_E_BIDDING : STEPS_SPECIFIC;
         let currentBaseDate = new Date();
-        currentBaseDate.setHours(0,0,0,0);
-
         if (p.projectStartDate) {
             const parsed = new Date(p.projectStartDate);
             if (!isNaN(parsed.getTime())) currentBaseDate = parsed;
         }
-
+        currentBaseDate.setHours(0,0,0,0);
         let result = {};
         let runningDate = new Date(currentBaseDate.getTime());
         let stepInputModes = p.stepInputModes || {};
@@ -713,101 +534,55 @@
         steps.forEach((stepName) => {
             let planEndDate;
             let mode = stepInputModes[stepName] || "days";
-
             if (mode === "date" && specificDates[stepName]) {
                 planEndDate = new Date(specificDates[stepName]);
-                if (isNaN(planEndDate.getTime())) {
-                    planEndDate = new Date(runningDate.getTime());
-                }
+                if (isNaN(planEndDate.getTime())) planEndDate = new Date(runningDate.getTime());
             } else {
-                let stepConfig = { days: 10, dayType: "วันทำการ" };
-                if (p.stepDurations && p.stepDurations[stepName]) {
-                    if (typeof p.stepDurations[stepName] === 'object') {
-                        stepConfig = p.stepDurations[stepName];
-                    } else {
-                        stepConfig = { days: Number(p.stepDurations[stepName]) || 10, dayType: "วันทำการ" };
-                    }
-                }
-                planEndDate = addDaysToDate(runningDate.toISOString().split('T')[0], Number(stepConfig.days), stepConfig.dayType);
+                let stepConfig = p.stepDurations && p.stepDurations[stepName] ? p.stepDurations[stepName] : { days: 10, dayType: "วันทำการ" };
+                planEndDate = addDaysToDate(runningDate.toISOString().split('T')[0], Number(stepConfig.days) || 10, stepConfig.dayType);
             }
-
             let planStr = planEndDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
-
             let actualDateStr = p.actualDates && p.actualDates[stepName] ? p.actualDates[stepName] : "";
             let actualFormatted = "";
             let delayDays = 0;
-            let statusTextDesc = "-";
+            let statusTextDesc = "อยู่ระหว่างดำเนินการ";
 
             if (actualDateStr) {
                 let actualDate = new Date(actualDateStr);
                 actualFormatted = actualDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
-                
-                let diffTime = actualDate - planEndDate;
-                delayDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-                if (delayDays > 0) {
-                    statusTextDesc = `ล่าช้า ${delayDays} วัน`;
-                } else if (delayDays < 0) {
-                    statusTextDesc = `เร็วกว่ากำหนด ${Math.abs(delayDays)} วัน`;
-                } else {
-                    statusTextDesc = `ตามกำหนด`;
-                }
-            } else {
-                statusTextDesc = "อยู่ระหว่างดำเนินการ";
+                delayDays = Math.round((actualDate - planEndDate) / (1000 * 60 * 60 * 24));
+                statusTextDesc = delayDays > 0 ? `ล่าช้า ${delayDays} วัน` : (delayDays < 0 ? `เร็วกว่ากำหนด ${Math.abs(delayDays)} วัน` : "ตามกำหนด");
             }
-
-            result[stepName] = {
-                plan: planStr,
-                actual: actualFormatted,
-                actualRaw: actualDateStr,
-                delay: delayDays,
-                statusText: statusTextDesc
-            };
-
+            result[stepName] = { plan: planStr, actual: actualFormatted, actualRaw: actualDateStr, delay: delayDays, statusText: statusTextDesc };
             runningDate = new Date(planEndDate.getTime());
         });
-
         return { steps, result };
     }
 
     function handleFormSubmit(event) {
         event.preventDefault();
-        const pass = document.getElementById('auth-password').value;
-        if (pass !== "1698") {
-            showAlert("รหัสผ่านไม่ถูกต้อง", "กรุณากรอกรหัสผ่านยืนยันให้ถูกต้อง (Password: 1698)", "error");
+        if (document.getElementById('auth-password').value !== "1698") {
+            showAlert("รหัสผ่านไม่ถูกต้อง", "กรุณากรอกรหัสผ่านยืนยันให้ถูกต้อง (1698)", "error");
             return;
         }
-
         const proc = document.getElementById('proj-procurement').value;
         const steps = proc === "วิธี E-bidding" ? STEPS_E_BIDDING : STEPS_SPECIFIC;
-        const stepDurations = {};
-        const actualDates = {};
-        const stepInputModes = {};
-        const specificDates = {};
+        let stepDurations = {}, actualDates = {}, stepInputModes = {}, specificDates = {};
 
         steps.forEach((s, idx) => {
-            const modeSelect = document.querySelector(`select[data-step-index="${idx}"][data-field="mode"]`);
-            const mode = modeSelect ? modeSelect.value : "days";
+            const mode = document.querySelector(`select[data-step-index="${idx}"][data-field="mode"]`).value;
             stepInputModes[s] = mode;
-
             if (mode === "days") {
-                const dayInput = document.querySelector(`input[data-step-index="${idx}"][data-field="days"]`);
-                const typeSelect = document.querySelector(`select[data-step-index="${idx}"][data-field="daytype"]`);
                 stepDurations[s] = {
-                    days: dayInput ? parseInt(dayInput.value) || 10 : 10,
-                    dayType: typeSelect ? typeSelect.value : "วันทำการ"
+                    days: parseInt(document.querySelector(`input[data-step-index="${idx}"][data-field="days"]`).value) || 10,
+                    dayType: document.querySelector(`select[data-step-index="${idx}"][data-field="daytype"]`).value
                 };
             } else {
-                const dateInput = document.querySelector(`input[data-step-index="${idx}"][data-field="specificDate"]`);
-                if (dateInput && dateInput.value) {
-                    specificDates[s] = dateInput.value;
-                }
+                const dateVal = document.querySelector(`input[data-step-index="${idx}"][data-field="specificDate"]`).value;
+                if (dateVal) specificDates[s] = dateVal;
             }
-
-            const actualInput = document.querySelector(`input[data-step-index="${idx}"][data-field="actual"]`);
-            if (actualInput && actualInput.value) {
-                actualDates[s] = actualInput.value;
-            }
+            const actualVal = document.querySelector(`input[data-step-index="${idx}"][data-field="actual"]`).value;
+            if (actualVal) actualDates[s] = actualVal;
         });
 
         const editId = document.getElementById('edit-index').value;
@@ -822,20 +597,15 @@
             procurement: proc,
             currentStep: document.getElementById('proj-current-step').value,
             projectStartDate: document.getElementById('proj-start-date').value || new Date().toISOString().split('T')[0],
-            stepDurations: stepDurations,
-            stepInputModes: stepInputModes,
-            specificDates: specificDates,
-            actualDates: actualDates
+            stepDurations, stepInputModes, specificDates, actualDates
         };
 
         if (editId) {
             const idx = projects.findIndex(p => String(p.id) === String(editId));
-            if (idx !== -1) {
-                projects[idx] = projData;
-            }
+            if (idx !== -1) projects[idx] = projData;
         } else {
             if (projects.some(p => String(p.id) === String(projData.id))) {
-                showAlert("เลขที่โครงการซ้ำ", "มีเลขที่โครงการนี้อยู่ในระบบแล้ว กรุณาใช้เลขที่อื่น", "error");
+                showAlert("เลขที่โครงการซ้ำ", "มีเลขที่โครงการนี้ในระบบแล้ว", "error");
                 return;
             }
             projects.push(projData);
@@ -845,32 +615,22 @@
         closeProjectModal();
         populateYearFilter();
         updateDashboard();
-        
+
         if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
             sendDataToGoogleSheet(projData);
         } else {
-            showAlert("บันทึกสำเร็จ", "บันทึกข้อมูลเรียบร้อยแล้ว (สำรองในเครื่อง)", "success");
+            showAlert("บันทึกสำเร็จ", "บันทึกข้อมูลเรียบร้อยแล้ว", "success");
         }
     }
 
     function deleteProject(id) {
-        const pass = prompt("กรุณากรอกรหัสผ่าน (1698) เพื่อยืนยันการลบข้อมูล:");
-        if (pass !== "1698") {
-            if (pass !== null) showAlert("รหัสผ่านไม่ถูกต้อง", "ไม่สามารถลบข้อมูลได้", "error");
-            return;
-        }
-        
-        const deletePayload = { action: "delete", id: String(id) };
+        if (prompt("กรุณากรอกรหัสผ่าน (1698) เพื่อยืนยันการลบ:") !== "1698") return;
         projects = projects.filter(p => String(p.id) !== String(id));
-        
         saveToLocalStorage();
         populateYearFilter();
         updateDashboard();
-        
         if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
-            sendDataToGoogleSheet(deletePayload);
-        } else {
-            showAlert("ลบสำเร็จ", "ลบโครงการออกจากระบบแล้ว", "success");
+            sendDataToGoogleSheet({ action: "delete", id: String(id) });
         }
     }
 
@@ -878,25 +638,18 @@
         const yearSelect = document.getElementById('filter-year');
         const currentVal = yearSelect.value;
         yearSelect.innerHTML = '<option value="">ทั้งหมด</option>';
-        
-        const presetYears = ["2570", "2571", "2572", "2573", "2574", "2575"];
-        const yearsSet = new Set([...presetYears, ...projects.map(p => String(p.year))]);
-        
+        const yearsSet = new Set(["2570", "2571", "2572", "2573", "2574", "2575", ...projects.map(p => String(p.year))]);
         Array.from(yearsSet).sort().reverse().forEach(y => {
             if (y) {
                 const opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y;
+                opt.value = y; opt.textContent = y;
                 yearSelect.appendChild(opt);
             }
         });
         yearSelect.value = currentVal;
     }
 
-    function applyFilters() {
-        updateDashboard();
-    }
-
+    function applyFilters() { updateDashboard(); }
     function resetFilters() {
         document.getElementById('filter-search').value = "";
         document.getElementById('filter-year').value = "";
@@ -905,14 +658,9 @@
         document.getElementById('filter-procurement').value = "";
         updateDashboard();
     }
-
     function toggleSidebar() {
         const sidebar = document.getElementById('filter-sidebar');
-        if (sidebar.classList.contains('hidden')) {
-            sidebar.classList.remove('hidden');
-        } else {
-            sidebar.classList.add('hidden');
-        }
+        sidebar.style.display = sidebar.style.display === 'none' ? 'flex' : 'none';
     }
 
     function updateDashboard() {
@@ -923,9 +671,7 @@
         const fProc = document.getElementById('filter-procurement').value;
 
         let filtered = projects.filter(p => {
-            const pId = String(p.id || "");
-            const pName = String(p.name || "");
-            const matchSearch = pId.toLowerCase().includes(search) || pName.toLowerCase().includes(search);
+            const matchSearch = String(p.id || "").toLowerCase().includes(search) || String(p.name || "").toLowerCase().includes(search);
             const matchYear = !fYear || String(p.year) === String(fYear);
             const matchBudgetType = !fBudgetType || p.budgetType === fBudgetType;
             const matchWorkType = !fWorkType || p.workType === fWorkType;
@@ -933,90 +679,55 @@
             return matchSearch && matchYear && matchBudgetType && matchWorkType && matchProc;
         });
 
-        let totalBudget = projects.reduce((acc, curr) => acc + (parseFloat(curr.budget) || 0), 0);
         document.getElementById('kpi-total').innerText = projects.length;
-        document.getElementById('kpi-budget').innerText = totalBudget.toLocaleString('th-TH', { minimumFractionDigits: 2 });
+        document.getElementById('kpi-budget').innerText = projects.reduce((acc, curr) => acc + (parseFloat(curr.budget) || 0), 0).toLocaleString('th-TH', { minimumFractionDigits: 2 });
 
         const matrixContainer = document.getElementById('projects-matrix-container');
         matrixContainer.innerHTML = "";
 
         if (filtered.length === 0) {
-            matrixContainer.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white rounded-2xl border border-slate-200">ไม่พบข้อมูลโครงการตามเงื่อนไขที่เลือก</div>`;
+            matrixContainer.innerHTML = `<div style="padding: 2rem; text-align: center; color: #94a3b8; background: white; border-radius: 0.75rem;">ไม่พบข้อมูลโครงการตามเงื่อนไขที่เลือก</div>`;
             return;
         }
 
         filtered.forEach(p => {
             const { steps, result } = computeProjectMatrix(p);
-
             const card = document.createElement('div');
-            card.className = "bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6";
+            card.style.cssText = "background: white; border-radius: 1rem; border: 1px solid #e2e8f0; overflow: hidden;";
             
-            let stepsHeaderHtml = '';
-            let stepsPlanHtml = '';
-            let stepsActualHtml = '';
-            let stepsDelayHtml = '';
-
+            let stepsHeaderHtml = '', stepsPlanHtml = '', stepsActualHtml = '', stepsDelayHtml = '';
             steps.forEach(s => {
                 const data = result[s];
-                stepsHeaderHtml += `<th class="p-3 text-center border-r border-slate-200 font-semibold text-slate-700 text-xs min-w-[120px] bg-slate-100">${s}</th>`;
-                stepsPlanHtml += `<td class="p-2.5 text-center border-r border-slate-200 text-xs text-slate-600 bg-blue-900/5">${data.plan || '-'}</td>`;
+                stepsHeaderHtml += `<th style="text-align: center; border-right: 1px solid #cbd5e1; min-width: 130px; font-size: 0.75rem; background: #f1f5f9;">${s}</th>`;
+                stepsPlanHtml += `<td style="text-align: center; border-right: 1px solid #e2e8f0; font-size: 0.75rem; background: rgba(30,58,138,0.03);">${data.plan || '-'}</td>`;
+                stepsActualHtml += `<td style="text-align: center; border-right: 1px solid #e2e8f0; font-size: 0.75rem; background: ${data.actualRaw ? '#a7f3d0' : '#fef08a'}; font-weight: 500;">${data.actual || 'กำลังดำเนินการ'}</td>`;
                 
-                if (data.actualRaw) {
-                    stepsActualHtml += `<td class="p-2.5 text-center border-r border-slate-200 text-xs bg-emerald-200 font-semibold text-emerald-900">${data.actual || '-'}</td>`;
-                } else {
-                    stepsActualHtml += `<td class="p-2.5 text-center border-r border-slate-200 text-xs bg-yellow-200 font-semibold text-yellow-900">อยู่ระหว่างดำเนินการ</td>`;
-                }
-                
-                let delayStyle = "text-slate-500";
-                if (data.delay > 0) {
-                    delayStyle = "text-rose-600 font-bold";
-                } else if (data.delay <= 0 && data.actualRaw) {
-                    delayStyle = "text-emerald-700 font-semibold";
-                }
-                stepsDelayHtml += `<td class="p-2.5 text-center border-r border-slate-200 text-xs ${delayStyle}">${data.statusText || '-'}</td>`;
+                let delayColor = data.delay > 0 ? "color: #e11d48; font-weight: bold;" : (data.actualRaw ? "color: #059669; font-weight: 500;" : "color: #64748b;");
+                stepsDelayHtml += `<td style="text-align: center; border-right: 1px solid #e2e8f0; font-size: 0.75rem; ${delayColor}">${data.statusText}</td>`;
             });
 
             card.innerHTML = `
-                <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div style="padding: 1rem; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
                     <div>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-slate-700">เลขที่โครงการ: ${p.id || '-'}</span>
-                            <span class="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-md">${p.workType || '-'} (${p.budgetType || '-'}) - ${p.procurement || '-'}</span>
+                        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.75rem; font-weight: bold; color: #334155;">เลขที่: ${p.id}</span>
+                            <span style="font-size: 0.7rem; background: #e2e8f0; padding: 0.1rem 0.5rem; border-radius: 0.25rem;">${p.workType} (${p.budgetType}) - ${p.procurement}</span>
                         </div>
-                        <h3 class="font-bold text-base mt-1 text-slate-900">ชื่อโครงการ: ${p.name || '-'}</h3>
-                        <p class="text-xs text-slate-500">งบประมาณ: <span class="font-semibold text-slate-800">${Number(p.budget || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</span> | ปีงบประมาณ: ${p.year || '-'}</p>
+                        <h3 style="font-size: 0.95rem; font-weight: bold; color: #0f172a;">${p.name}</h3>
+                        <p style="font-size: 0.75rem; color: #64748b; margin-top: 0.2rem;">งบประมาณ: <strong>${Number(p.budget || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</strong> | ปีงบประมาณ: ${p.year}</p>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="openProjectModal(true, '${p.id}')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-pen-to-square"></i> แก้ไข / กรอกวันจริง
-                        </button>
-                        <button type="button" onclick="deleteProject('${p.id}')" class="bg-rose-600 hover:bg-rose-500 text-white text-xs px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer">
-                            <i class="fa-solid fa-trash"></i> ลบ
-                        </button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button type="button" onclick="openProjectModal(true, '${p.id}')" class="btn btn-blue" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">✏️ แก้ไข</button>
+                        <button type="button" onclick="deleteProject('${p.id}')" class="btn btn-rose" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">🗑️ ลบ</button>
                     </div>
                 </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full border-collapse border-b border-slate-200">
-                        <thead>
-                            <tr class="border-b border-slate-200">
-                                <th class="p-3 text-left bg-slate-200 text-slate-700 text-xs font-bold w-40 border-r border-slate-300">หัวข้อ</th>
-                                ${stepsHeaderHtml}
-                            </tr>
-                        </thead>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead><tr><th style="width: 140px; background: #e2e8f0;">หัวข้อ</th>${stepsHeaderHtml}</tr></thead>
                         <tbody>
-                            <tr class="border-b border-slate-100">
-                                <td class="p-3 text-xs font-semibold bg-blue-900 text-white border-r border-slate-200">แผน/คาดการณ์</td>
-                                ${stepsPlanHtml}
-                            </tr>
-                            <tr class="border-b border-slate-100">
-                                <td class="p-3 text-xs font-semibold bg-emerald-800 text-white border-r border-slate-200">แล้วเสร็จจริง</td>
-                                ${stepsActualHtml}
-                            </tr>
-                            <tr>
-                                <td class="p-3 text-xs font-semibold bg-slate-700 text-white border-r border-slate-200">ล่าช้า...... วัน</td>
-                                ${stepsDelayHtml}
-                            </tr>
+                            <tr><td style="font-weight: 600; background: #1e3a8a; color: white;">แผน/คาดการณ์</td>${stepsPlanHtml}</tr>
+                            <tr><td style="font-weight: 600; background: #065f46; color: white;">แล้วเสร็จจริง</td>${stepsActualHtml}</tr>
+                            <tr><td style="font-weight: 600; background: #334155; color: white;">สถานะความล่าช้า</td>${stepsDelayHtml}</tr>
                         </tbody>
                     </table>
                 </div>
@@ -1028,34 +739,23 @@
     function fetchDataFromGoogleSheet() {
         if (!googleScriptUrl || googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) return;
         const syncStatus = document.getElementById('sync-status');
-        syncStatus.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span><span>กำลังซิงค์ข้อมูล...</span>`;
+        syncStatus.innerHTML = `<span style="width: 8px; height: 8px; border-radius: 50%; background: #fbbf24;"></span><span>กำลังซิงค์...</span>`;
 
         fetch(googleScriptUrl)
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                let projectList = [];
-                let holidayList = [];
+                let projectList = Array.isArray(data) ? data : (data.projects || []);
+                let holidayList = data.holidays || [];
 
-                if (Array.isArray(data)) {
-                    projectList = data;
-                } else if (typeof data === 'object') {
-                    projectList = data.projects || [];
-                    holidayList = data.holidays || [];
-                }
-
-                // แปลงรูปแบบข้อมูลโครงการ
                 projects = projectList.map(item => {
                     ['stepDurations', 'stepInputModes', 'specificDates', 'actualDates'].forEach(field => {
                         if (item[field] && typeof item[field] === 'string') {
                             try { item[field] = JSON.parse(item[field]); } catch(e) { item[field] = {}; }
-                        } else if (!item[field]) {
-                            item[field] = {};
-                        }
+                        } else if (!item[field]) { item[field] = {}; }
                     });
                     return item;
                 });
 
-                // บันทึกและอัปเดตวันหยุดพิเศษ
                 if (holidayList.length > 0) {
                     customHolidays = holidayList;
                     saveCustomHolidays();
@@ -1064,36 +764,29 @@
                 saveToLocalStorage();
                 populateYearFilter();
                 updateDashboard();
-                syncStatus.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span><span>เชื่อมต่อ Google Sheets แล้ว</span>`;
+                syncStatus.innerHTML = `<span style="width: 8px; height: 8px; border-radius: 50%; background: #34d399;"></span><span>เชื่อมต่อ Google Sheets แล้ว</span>`;
             })
             .catch(err => {
-                console.error("Fetch error:", err);
-                syncStatus.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>โหลด Sheets ไม่สำเร็จ (ใช้ข้อมูลในเครื่อง)</span>`;
+                syncStatus.innerHTML = `<span style="width: 8px; height: 8px; border-radius: 50%; background: #f43f5e;"></span><span>ออฟไลน์ (ใช้ข้อมูลในเครื่อง)</span>`;
             });
     }
 
     function sendDataToGoogleSheet(payloadData) {
         if (!googleScriptUrl || googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) return;
         let payload = { ...payloadData };
-        
-        if (payload.stepDurations) payload.stepDurations = JSON.stringify(payload.stepDurations);
-        if (payload.stepInputModes) payload.stepInputModes = JSON.stringify(payload.stepInputModes);
-        if (payload.specificDates) payload.specificDates = JSON.stringify(payload.specificDates);
-        if (payload.actualDates) payload.actualDates = JSON.stringify(payload.actualDates);
+        ['stepDurations', 'stepInputModes', 'specificDates', 'actualDates'].forEach(f => {
+            if (payload[f]) payload[f] = JSON.stringify(payload[f]);
+        });
 
         fetch(googleScriptUrl, {
-            method: "POST",
-            mode: "no-cors",
+            method: "POST", mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         }).then(() => {
-            showAlert("บันทึกสำเร็จ", "ซิงค์ข้อมูลกับ Google Sheets เรียบร้อยแล้ว", "success");
+            showAlert("สำเร็จ", "ซิงค์ข้อมูลกับ Google Sheets เรียบร้อยแล้ว", "success");
             fetchDataFromGoogleSheet();
-        }).catch(err => {
-            console.error("Post error:", err);
-            showAlert("แจ้งเตือน", "การซิงค์ไป Google Sheets ขัดข้อง แต่บันทึกข้อมูลในเครื่องเรียบร้อยแล้ว", "error");
-            populateYearFilter();
-            updateDashboard();
+        }).catch(() => {
+            showAlert("แจ้งเตือน", "บันทึกในเครื่องเรียบร้อยแล้ว (ไม่สามารถส่งไป Sheets ได้)", "info");
         });
     }
 </script>

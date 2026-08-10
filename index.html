@@ -65,7 +65,6 @@
     </style>
 </head>
 <body>
-
     <header>
         <div class="header-title">
             <div class="header-icon">💧</div>
@@ -160,7 +159,7 @@
                 <div style="padding: 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                     <div>
                         <h2 style="font-weight: bold; font-size: 1.1rem; color: #1e293b;">รายการโครงการ</h2>
-                        <p style="font-size: 0.75rem; color: var(--text-muted);">แสดงแผน/คาดการณ์เดิม, ปรับคาดการณ์ใหม่ (Chain จากวันแล้วเสร็จจริงล่าสุด), แล้วเสร็จจริง และสถานะล่าช้า/เร็วกว่ากำหนด</p>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">แสดงแผน/คาดการณ์เดิม, ปรับคาดการณ์ (อิงวันแล้วเสร็จจริงของขั้นตอนที่ผ่านมาล่าสุด + ค่าระยะเวลาแต่ละขั้นตอน) และแล้วเสร็จจริง</p>
                     </div>
                     <button type="button" onclick="fetchDataFromGoogleSheet()" class="btn btn-slate" style="font-size: 0.75rem;">🔄 โหลดข้อมูลใหม่</button>
                 </div>
@@ -172,7 +171,6 @@
         </div>
     </div>
 
-    <!-- Holiday Modal -->
     <div id="holiday-modal" class="modal">
         <div class="modal-content" style="max-width: 650px;">
             <div style="background: #b45309; color: white; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
@@ -221,7 +219,6 @@
         </div>
     </div>
 
-    <!-- Project Modal -->
     <div id="project-modal" class="modal">
         <div class="modal-content">
             <div style="background: #1e3a8a; color: white; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
@@ -302,7 +299,6 @@
         </div>
     </div>
 
-    <!-- Alert Modal -->
     <div id="alert-modal" class="modal">
         <div class="modal-content" style="max-width: 400px; padding: 1.5rem; text-align: center;">
             <div id="alert-icon" style="width: 3.5rem; height: 3.5rem; background: #eff6ff; color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1rem;">ℹ️</div>
@@ -316,20 +312,20 @@
         const googleScriptUrl = "https://script.google.com/macros/s/AKfycbzX1TEY2vrIIYVuoYesI72OdOiCAd32a7yGJKs2i3vh5cySZYrwZ2IyRs7IXAzJ-eFA/exec";
 
         const STEPS_E_BIDDING = ["อนุมัติงบ", "TOR", "ราคากลาง", "ร่างประกาศ", "ประกาศเชิญชวน", "พิจารณาผล", "อุทธรณ์", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"];
-        const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", "เจรจาผู้ค้า", "จัดทำค้ำฯ เตรียมลงนาม", "ลงนาม"];
+        const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", "เจรจาผู้ค้า-อนุมัติสั่งจ้าง", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"];
 
         const DEFAULT_DURATIONS_E_BIDDING = {
-            "อนุมัติงบ": { days: 3, dayType: "วันทำการ" }, "TOR": { days: 15, dayType: "วันทำการ" },
-            "ราคากลาง": { days: 10, dayType: "วันทำการ" }, "ร่างประกาศ": { days: 7, dayType: "วันทำการ" },
-            "ประกาศเชิญชวน": { days: 12, dayType: "วันทำการ" }, "พิจารณาผล": { days: 30, dayType: "วันทำการ" },
-            "อุทธรณ์": { days: 7, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" }, "ลงนาม": { days: 2, dayType: "วันทำการ" }
+            "อนุมัติงบ": { days: 7, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
+            "ราคากลาง": { days: 30, dayType: "วันทำการ" }, "ร่างประกาศ": { days: 10, dayType: "วันทำการ" },
+            "ประกาศเชิญชวน": { days: 12, dayType: "วันปฏิทิน" }, "พิจารณาผล": { days: 30, dayType: "วันทำการ" },
+            "อุทธรณ์": { days: 7, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" }, "ลงนาม": { days: 1, dayType: "วันทำการ" }
         };
 
         const DEFAULT_DURATIONS_SPECIFIC = {
-            "อนุมัติงบ": { days: 3, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
+            "อนุมัติงบ": { days: 7, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
             "ราคากลาง": { days: 30, dayType: "วันทำการ" }, "รายงานขอซื้อ/จ้าง": { days: 3, dayType: "วันทำการ" },
-            "เจรจาผู้ค้า": { days: 5, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" },
-            "ลงนาม": { days: 2, dayType: "วันทำการ" }
+            "เจรจาผู้ค้า-อนุมัติสั่งจ้าง": { days: 5, dayType: "วันทำการ" }, "จัดทำค้ำเตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" },
+            "ลงนาม": { days: 1, dayType: "วันทำการ" }
         };
 
         const DEFAULT_THAI_HOLIDAYS = new Set([
@@ -470,7 +466,6 @@
                     document.getElementById('proj-budget').value = p.budget || "";
                     document.getElementById('proj-procurement').value = p.procurement || "วิธี E-bidding";
                     
-                    // คงค่าวันที่เริ่มต้นเดิมไว้ หากไม่มีจึงใช้ค่าปัจจุบัน
                     document.getElementById('proj-start-date').value = p.projectStartDate || todayStr;
                     
                     onProcurementChange(p.stepDurations, p.actualDates, p.stepInputModes, p.specificDates);
@@ -577,88 +572,83 @@
             }
             currentBaseDate.setHours(0,0,0,0);
             
-            let result = {};
-            let runningDate = new Date(currentBaseDate.getTime());
             let stepInputModes = p.stepInputModes || {};
             let specificDates = p.specificDates || {};
             let actualDates = p.actualDates || {};
+            let stepDurations = p.stepDurations || (p.procurement === "วิธี E-bidding" ? DEFAULT_DURATIONS_E_BIDDING : DEFAULT_DURATIONS_SPECIFIC);
 
-            // 1. Calculate standard plan dates
-            let planDatesRaw = [];
+            // 1. Calculate Original Plan (แผน/คาดการณ์เดิม)
+            let runningPlanDate = new Date(currentBaseDate.getTime());
+            let planDates = [];
             steps.forEach((stepName) => {
-                let planEndDate;
                 let mode = stepInputModes[stepName] || "days";
+                let stepConfig = stepDurations[stepName] || { days: 10, dayType: "วันทำการ" };
+                let planEndDate;
                 if (mode === "date" && specificDates[stepName]) {
                     planEndDate = new Date(specificDates[stepName]);
-                    if (isNaN(planEndDate.getTime())) planEndDate = new Date(runningDate.getTime());
+                    if (isNaN(planEndDate.getTime())) planEndDate = new Date(runningPlanDate.getTime());
                 } else {
-                    let stepConfig = p.stepDurations && p.stepDurations[stepName] ? p.stepDurations[stepName] : { days: 10, dayType: "วันทำการ" };
-                    planEndDate = addDaysToDate(runningDate.toISOString().split('T')[0], Number(stepConfig.days) || 10, stepConfig.dayType);
+                    planEndDate = addDaysToDate(runningPlanDate.toISOString().split('T')[0], Number(stepConfig.days) || 10, stepConfig.dayType);
                 }
-                planDatesRaw.push(new Date(planEndDate.getTime()));
-                runningDate = new Date(planEndDate.getTime());
+                planDates.push(new Date(planEndDate.getTime()));
+                runningPlanDate = new Date(planEndDate.getTime());
             });
 
-            // 2. Calculate Adjusted Forecast (ปรับคาดการณ์) with Chaining from latest completed step
-            let lastCompletedIdx = -1;
-            steps.forEach((stepName, idx) => {
-                if (actualDates[stepName]) {
-                    lastCompletedIdx = idx;
+            // 2. Find latest completed step index (latestActualIdx)
+            let latestActualIdx = -1;
+            for (let i = steps.length - 1; i >= 0; i--) {
+                if (actualDates[steps[i]]) {
+                    latestActualIdx = i;
+                    break;
                 }
-            });
+            }
 
-            let preciseAdjDates = [];
-            let baseForUncompleted = lastCompletedIdx >= 0 ? new Date(actualDates[steps[lastCompletedIdx]]) : new Date(currentBaseDate.getTime());
-            let currentChainDate = new Date(baseForUncompleted.getTime());
-
-            steps.forEach((stepName, idx) => {
-                let adjDate;
-                let actualStr = actualDates[stepName];
-                let mode = stepInputModes[stepName] || "days";
-                let stepConfig = p.stepDurations && p.stepDurations[stepName] ? p.stepDurations[stepName] : { days: 10, dayType: "วันทำการ" };
-
-                if (actualStr) {
-                    adjDate = new Date(actualStr);
-                    preciseAdjDates.push(new Date(adjDate.getTime()));
-                    currentChainDate = new Date(adjDate.getTime());
-                } else {
-                    if (mode === "date" && specificDates[stepName]) {
-                        adjDate = new Date(specificDates[stepName]);
-                    } else {
-                        adjDate = addDaysToDate(currentChainDate.toISOString().split('T')[0], Number(stepConfig.days) || 10, stepConfig.dayType);
-                    }
-                    preciseAdjDates.push(new Date(adjDate.getTime()));
-                    currentChainDate = new Date(adjDate.getTime());
-                }
-            });
-
-            // 3. Format result per step
-            steps.forEach((stepName, idx) => {
-                let planEndDate = planDatesRaw[idx];
-                let planStr = planEndDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+            // 3. Calculate Adjusted Forecast (ปรับคาดการณ์)
+            // Rule: Up to latest completed step, uses planDates. After latest completed step, chains from actual date of latest completed step + subsequent step durations.
+            let adjustedDates = [];
+            if (latestActualIdx === -1) {
+                adjustedDates = planDates.map(d => new Date(d.getTime()));
+            } else {
+                let anchorDateStr = actualDates[steps[latestActualIdx]];
                 
-                let adjDate = preciseAdjDates[idx];
-                let adjStr = adjDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
-
-                let actualDateStr = actualDates[stepName] || "";
-                let actualFormatted = "";
-                let delayDays = 0;
-                let statusTextDesc = "อยู่ระหว่างดำเนินการ";
-
-                if (actualDateStr) {
-                    let actualDate = new Date(actualDateStr);
-                    actualFormatted = actualDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
-                    delayDays = Math.round((actualDate - planEndDate) / (1000 * 60 * 60 * 24));
-                    statusTextDesc = delayDays > 0 ? `ล่าช้า ${delayDays} วัน` : (delayDays < 0 ? `เร็วกว่ากำหนด ${Math.abs(delayDays)} วัน` : "ตามกำหนด");
+                // For steps up to latestActualIdx, use planDates (duration-based from start, so duration changes update it)
+                for (let i = 0; i <= latestActualIdx; i++) {
+                    adjustedDates.push(new Date(planDates[i].getTime()));
                 }
+
+                // For steps after latestActualIdx, chain from anchorDate + step durations
+                let runningAdjDate = new Date(anchorDateStr);
+                if (isNaN(runningAdjDate.getTime())) runningAdjDate = new Date(currentBaseDate.getTime());
+                runningAdjDate.setHours(0,0,0,0);
+
+                for (let i = latestActualIdx + 1; i < steps.length; i++) {
+                    let stepName = steps[i];
+                    let mode = stepInputModes[stepName] || "days";
+                    let stepConfig = stepDurations[stepName] || { days: 10, dayType: "วันทำการ" };
+                    let adjEndDate;
+                    if (mode === "date" && specificDates[stepName]) {
+                        adjEndDate = new Date(specificDates[stepName]);
+                        if (isNaN(adjEndDate.getTime())) adjEndDate = new Date(runningAdjDate.getTime());
+                    } else {
+                        adjEndDate = addDaysToDate(runningAdjDate.toISOString().split('T')[0], Number(stepConfig.days) || 10, stepConfig.dayType);
+                    }
+                    adjustedDates.push(new Date(adjEndDate.getTime()));
+                    runningAdjDate = new Date(adjEndDate.getTime());
+                }
+            }
+
+            let result = {};
+            steps.forEach((stepName, idx) => {
+                let planStr = planDates[idx].toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+                let adjStr = adjustedDates[idx].toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+                let actualDateStr = actualDates[stepName] || "";
+                let actualFormatted = actualDateStr ? new Date(actualDateStr).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) : "";
 
                 result[stepName] = {
                     plan: planStr,
                     adjusted: adjStr,
                     actual: actualFormatted,
-                    actualRaw: actualDateStr,
-                    delay: delayDays,
-                    statusText: statusTextDesc
+                    actualRaw: actualDateStr
                 };
             });
 
@@ -806,16 +796,13 @@
                 const card = document.createElement('div');
                 card.style.cssText = "background: white; border-radius: 1rem; border: 1px solid var(--border); overflow: hidden;";
                 
-                let stepsHeaderHtml = '', stepsPlanHtml = '', stepsAdjHtml = '', stepsActualHtml = '', stepsDelayHtml = '';
+                let stepsHeaderHtml = '', stepsPlanHtml = '', stepsAdjHtml = '', stepsActualHtml = '';
                 steps.forEach(s => {
                     const data = result[s];
                     stepsHeaderHtml += `<th style="text-align: center; border-right: 1px solid #cbd5e1; min-width: 130px; font-size: 0.75rem; background: #f1f5f9;">${s}</th>`;
                     stepsPlanHtml += `<td style="text-align: center; border-right: 1px solid var(--border); font-size: 0.75rem; background: rgba(30,58,138,0.03);">${data.plan || '-'}</td>`;
                     stepsAdjHtml += `<td style="text-align: center; border-right: 1px solid var(--border); font-size: 0.75rem; background: rgba(124,58,237,0.05); font-weight: 500; color: #6d28d9;">${data.adjusted || '-'}</td>`;
                     stepsActualHtml += `<td style="text-align: center; border-right: 1px solid var(--border); font-size: 0.75rem; background: ${data.actualRaw ? '#a7f3d0' : '#fef08a'}; font-weight: 500;">${data.actual || 'กำลังดำเนินการ'}</td>`;
-                    
-                    let delayColor = data.delay > 0 ? "color: var(--danger); font-weight: bold;" : (data.actualRaw ? "color: var(--success); font-weight: 500;" : "color: var(--text-muted);");
-                    stepsDelayHtml += `<td style="text-align: center; border-right: 1px solid var(--border); font-size: 0.75rem; ${delayColor}">${data.statusText}</td>`;
                 });
 
                 card.innerHTML = `
@@ -824,6 +811,7 @@
                             <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
                                 <span style="font-size: 0.75rem; font-weight: bold; color: #334155;">เลขที่: ${p.id}</span>
                                 <span style="font-size: 0.7rem; background: #e2e8f0; padding: 0.1rem 0.5rem; border-radius: 0.25rem;">${p.workType} (${p.budgetType}) - ${p.procurement}</span>
+                                <span style="font-size: 0.7rem; background: #dbeafe; color: #1e40af; padding: 0.1rem 0.5rem; border-radius: 0.25rem; font-weight: 600;">ขั้นตอนปัจจุบัน: ${p.currentStep || '-'}</span>
                             </div>
                             <h3 style="font-size: 0.95rem; font-weight: bold; color: #0f172a;">${p.name}</h3>
                             <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">งบประมาณ: <strong>${Number(p.budget || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท</strong> | ปีงบประมาณ: ${p.year} | วันเริ่มต้น: <strong>${p.projectStartDate ? new Date(p.projectStartDate).toLocaleDateString('th-TH', {year: 'numeric', month: 'short', day: 'numeric'}) : '-'}</strong></p>
@@ -840,7 +828,6 @@
                                 <tr><td style="font-weight: 600; background: #1e3a8a; color: white;">แผน/คาดการณ์เดิม</td>${stepsPlanHtml}</tr>
                                 <tr><td style="font-weight: 600; background: #7c3aed; color: white;">ปรับคาดการณ์</td>${stepsAdjHtml}</tr>
                                 <tr><td style="font-weight: 600; background: #065f46; color: white;">แล้วเสร็จจริง</td>${stepsActualHtml}</tr>
-                                <tr><td style="font-weight: 600; background: #334155; color: white;">สถานะความล่าช้า</td>${stepsDelayHtml}</tr>
                             </tbody>
                         </table>
                     </div>

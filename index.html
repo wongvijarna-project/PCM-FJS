@@ -160,7 +160,7 @@
                 <div style="padding: 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                     <div>
                         <h2 style="font-weight: bold; font-size: 1.1rem; color: #1e293b;">รายการโครงการ</h2>
-                        <p style="font-size: 0.75rem; color: var(--text-muted);">แสดงแผน/คาดการณ์ (คำนวณวันทำการเว้นวันหยุด), แล้วเสร็จจริง และสถานะล่าช้า/เร็วกว่ากำหนด</p>
+                        <p style="font-size: 0.75rem; color: var(--text-muted);">แสดงแผน/คาดการณ์เดิม, ปรับคาดการณ์ใหม่ (Chain จากวันแล้วเสร็จจริงล่าสุด), แล้วเสร็จจริง และสถานะล่าช้า/เร็วกว่ากำหนด</p>
                     </div>
                     <button type="button" onclick="fetchDataFromGoogleSheet()" class="btn btn-slate" style="font-size: 0.75rem;">🔄 โหลดข้อมูลใหม่</button>
                 </div>
@@ -313,24 +313,23 @@
     </div>
 
     <script>
-        // แทนที่ URL ของ Google Apps Script Web App ที่นี่
         const googleScriptUrl = "https://script.google.com/macros/s/AKfycbzX1TEY2vrIIYVuoYesI72OdOiCAd32a7yGJKs2i3vh5cySZYrwZ2IyRs7IXAzJ-eFA/exec";
 
         const STEPS_E_BIDDING = ["อนุมัติงบ", "TOR", "ราคากลาง", "ร่างประกาศ", "ประกาศเชิญชวน", "พิจารณาผล", "อุทธรณ์", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"];
-        const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง",  "เจรจาผู้ค้าและขอสั่งจ้าง", "ทำค้ำ/เตรียมลงนาม", "ลงนาม"];
+        const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", "เจรจาผู้ค้า", "จัดทำค้ำฯ เตรียมลงนาม", "ลงนาม"];
 
         const DEFAULT_DURATIONS_E_BIDDING = {
-            "อนุมัติงบ": { days: 2, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
-            "ราคากลาง": { days: 30, dayType: "วันทำการ" }, "ร่างประกาศ": { days: 10, dayType: "วันทำการ" },
+            "อนุมัติงบ": { days: 3, dayType: "วันทำการ" }, "TOR": { days: 15, dayType: "วันทำการ" },
+            "ราคากลาง": { days: 10, dayType: "วันทำการ" }, "ร่างประกาศ": { days: 7, dayType: "วันทำการ" },
             "ประกาศเชิญชวน": { days: 12, dayType: "วันทำการ" }, "พิจารณาผล": { days: 30, dayType: "วันทำการ" },
-            "อุทธรณ์": { days: 7, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันทำปฏิทิน" }, "ลงนาม": { days: 1, dayType: "วันทำการ" }
+            "อุทธรณ์": { days: 7, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" }, "ลงนาม": { days: 2, dayType: "วันทำการ" }
         };
 
         const DEFAULT_DURATIONS_SPECIFIC = {
-            "อนุมัติงบ": { days: 2, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
+            "อนุมัติงบ": { days: 3, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
             "ราคากลาง": { days: 30, dayType: "วันทำการ" }, "รายงานขอซื้อ/จ้าง": { days: 3, dayType: "วันทำการ" },
-            "เจรจาผู้ค้าและขอสั่งจ้าง": { days: 7, dayType: "วันทำการ" },
-            "ทำค้ำ เตรียมลงนาม": { days: 5, dayType: "วันทำการ" }, "ลงนาม": { days: 1, dayType: "วันทำการ" }
+            "เจรจาผู้ค้า": { days: 5, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" },
+            "ลงนาม": { days: 2, dayType: "วันทำการ" }
         };
 
         const DEFAULT_THAI_HOLIDAYS = new Set([
@@ -577,11 +576,15 @@
                 if (!isNaN(parsed.getTime())) currentBaseDate = parsed;
             }
             currentBaseDate.setHours(0,0,0,0);
+            
             let result = {};
             let runningDate = new Date(currentBaseDate.getTime());
             let stepInputModes = p.stepInputModes || {};
             let specificDates = p.specificDates || {};
+            let actualDates = p.actualDates || {};
 
+            // 1. Calculate standard plan dates
+            let planDatesRaw = [];
             steps.forEach((stepName) => {
                 let planEndDate;
                 let mode = stepInputModes[stepName] || "days";
@@ -592,8 +595,52 @@
                     let stepConfig = p.stepDurations && p.stepDurations[stepName] ? p.stepDurations[stepName] : { days: 10, dayType: "วันทำการ" };
                     planEndDate = addDaysToDate(runningDate.toISOString().split('T')[0], Number(stepConfig.days) || 10, stepConfig.dayType);
                 }
+                planDatesRaw.push(new Date(planEndDate.getTime()));
+                runningDate = new Date(planEndDate.getTime());
+            });
+
+            // 2. Calculate Adjusted Forecast (ปรับคาดการณ์) with Chaining from latest completed step
+            let lastCompletedIdx = -1;
+            steps.forEach((stepName, idx) => {
+                if (actualDates[stepName]) {
+                    lastCompletedIdx = idx;
+                }
+            });
+
+            let preciseAdjDates = [];
+            let baseForUncompleted = lastCompletedIdx >= 0 ? new Date(actualDates[steps[lastCompletedIdx]]) : new Date(currentBaseDate.getTime());
+            let currentChainDate = new Date(baseForUncompleted.getTime());
+
+            steps.forEach((stepName, idx) => {
+                let adjDate;
+                let actualStr = actualDates[stepName];
+                let mode = stepInputModes[stepName] || "days";
+                let stepConfig = p.stepDurations && p.stepDurations[stepName] ? p.stepDurations[stepName] : { days: 10, dayType: "วันทำการ" };
+
+                if (actualStr) {
+                    adjDate = new Date(actualStr);
+                    preciseAdjDates.push(new Date(adjDate.getTime()));
+                    currentChainDate = new Date(adjDate.getTime());
+                } else {
+                    if (mode === "date" && specificDates[stepName]) {
+                        adjDate = new Date(specificDates[stepName]);
+                    } else {
+                        adjDate = addDaysToDate(currentChainDate.toISOString().split('T')[0], Number(stepConfig.days) || 10, stepConfig.dayType);
+                    }
+                    preciseAdjDates.push(new Date(adjDate.getTime()));
+                    currentChainDate = new Date(adjDate.getTime());
+                }
+            });
+
+            // 3. Format result per step
+            steps.forEach((stepName, idx) => {
+                let planEndDate = planDatesRaw[idx];
                 let planStr = planEndDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
-                let actualDateStr = p.actualDates && p.actualDates[stepName] ? p.actualDates[stepName] : "";
+                
+                let adjDate = preciseAdjDates[idx];
+                let adjStr = adjDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+
+                let actualDateStr = actualDates[stepName] || "";
                 let actualFormatted = "";
                 let delayDays = 0;
                 let statusTextDesc = "อยู่ระหว่างดำเนินการ";
@@ -604,9 +651,17 @@
                     delayDays = Math.round((actualDate - planEndDate) / (1000 * 60 * 60 * 24));
                     statusTextDesc = delayDays > 0 ? `ล่าช้า ${delayDays} วัน` : (delayDays < 0 ? `เร็วกว่ากำหนด ${Math.abs(delayDays)} วัน` : "ตามกำหนด");
                 }
-                result[stepName] = { plan: planStr, actual: actualFormatted, actualRaw: actualDateStr, delay: delayDays, statusText: statusTextDesc };
-                runningDate = new Date(planEndDate.getTime());
+
+                result[stepName] = {
+                    plan: planStr,
+                    adjusted: adjStr,
+                    actual: actualFormatted,
+                    actualRaw: actualDateStr,
+                    delay: delayDays,
+                    statusText: statusTextDesc
+                };
             });
+
             return { steps, result };
         }
 
@@ -639,7 +694,6 @@
             const editId = document.getElementById('edit-index').value;
             const existingProj = editId ? projects.find(p => String(p.id) === String(editId)) : null;
             
-            // หากเป็นการแก้ไขและไม่ได้กรอกวันที่ใหม่ ให้คงค่าวันที่เริ่มต้นเดิมไว้
             const inputStartDate = document.getElementById('proj-start-date').value;
             const finalStartDate = inputStartDate ? inputStartDate : (existingProj ? existingProj.projectStartDate : new Date().toISOString().split('T')[0]);
 
@@ -752,11 +806,12 @@
                 const card = document.createElement('div');
                 card.style.cssText = "background: white; border-radius: 1rem; border: 1px solid var(--border); overflow: hidden;";
                 
-                let stepsHeaderHtml = '', stepsPlanHtml = '', stepsActualHtml = '', stepsDelayHtml = '';
+                let stepsHeaderHtml = '', stepsPlanHtml = '', stepsAdjHtml = '', stepsActualHtml = '', stepsDelayHtml = '';
                 steps.forEach(s => {
                     const data = result[s];
                     stepsHeaderHtml += `<th style="text-align: center; border-right: 1px solid #cbd5e1; min-width: 130px; font-size: 0.75rem; background: #f1f5f9;">${s}</th>`;
                     stepsPlanHtml += `<td style="text-align: center; border-right: 1px solid var(--border); font-size: 0.75rem; background: rgba(30,58,138,0.03);">${data.plan || '-'}</td>`;
+                    stepsAdjHtml += `<td style="text-align: center; border-right: 1px solid var(--border); font-size: 0.75rem; background: rgba(124,58,237,0.05); font-weight: 500; color: #6d28d9;">${data.adjusted || '-'}</td>`;
                     stepsActualHtml += `<td style="text-align: center; border-right: 1px solid var(--border); font-size: 0.75rem; background: ${data.actualRaw ? '#a7f3d0' : '#fef08a'}; font-weight: 500;">${data.actual || 'กำลังดำเนินการ'}</td>`;
                     
                     let delayColor = data.delay > 0 ? "color: var(--danger); font-weight: bold;" : (data.actualRaw ? "color: var(--success); font-weight: 500;" : "color: var(--text-muted);");
@@ -780,9 +835,10 @@
                     </div>
                     <div style="overflow-x: auto;">
                         <table>
-                            <thead><tr><th style="width: 140px; background: #e2e8f0;">หัวข้อ</th>${stepsHeaderHtml}</tr></thead>
+                            <thead><tr><th style="width: 150px; background: #e2e8f0;">หัวข้อ</th>${stepsHeaderHtml}</tr></thead>
                             <tbody>
-                                <tr><td style="font-weight: 600; background: #1e3a8a; color: white;">แผน/คาดการณ์</td>${stepsPlanHtml}</tr>
+                                <tr><td style="font-weight: 600; background: #1e3a8a; color: white;">แผน/คาดการณ์เดิม</td>${stepsPlanHtml}</tr>
+                                <tr><td style="font-weight: 600; background: #7c3aed; color: white;">ปรับคาดการณ์</td>${stepsAdjHtml}</tr>
                                 <tr><td style="font-weight: 600; background: #065f46; color: white;">แล้วเสร็จจริง</td>${stepsActualHtml}</tr>
                                 <tr><td style="font-weight: 600; background: #334155; color: white;">สถานะความล่าช้า</td>${stepsDelayHtml}</tr>
                             </tbody>

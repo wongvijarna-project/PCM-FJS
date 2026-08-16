@@ -766,7 +766,7 @@
             Array.from(allSteps).forEach(s => {
                 if (s) {
                     const opt = document.createElement('option');
-                    opt.value = s; opt.textContent = s;
+                    opt.value = s; opt.textContent = s.replace(/ลงนาม/g, '');
                     stepSelect.appendChild(opt);
                 }
             });

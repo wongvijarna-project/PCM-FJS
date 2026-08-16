@@ -127,6 +127,12 @@
                     <option value="วิธีเฉพาะเจาะจงไม่เกิน 5 แสนบาท">วิธีเฉพาะเจาะจงไม่เกิน 5 แสนบาท</option>
                 </select>
             </div>
+            <div>
+                <label>ขั้นตอนการทำงาน (ปัจจุบัน)</label>
+                <select id="filter-current-step" onchange="applyFilters()">
+                    <option value="">ทั้งหมด</option>
+                </select>
+            </div>
         </aside>
 
         <div class="content-area">
@@ -287,7 +293,7 @@
                 <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 1rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
                     <div>
                         <h4 style="font-size: 0.8rem; font-weight: bold; color: #92400e;">🔒 ยืนยันรหัสผ่านก่อนบันทึก</h4>
-                        <p style="font-size: 0.7rem; color: #b45309;">รหัสผ่าน: xxxx</p>
+                        <p style="font-size: 0.7rem; color: #b45309;">รหัสผ่าน: 1698</p>
                     </div>
                     <input type="password" id="auth-password" required maxlength="4" placeholder="รหัสผ่าน 4 หลัก" style="width: 140px; background: white; text-align: center; font-weight: bold; letter-spacing: 0.2em;">
                 </div>
@@ -311,21 +317,21 @@
     <script>
         const googleScriptUrl = "https://script.google.com/macros/s/AKfycbzX1TEY2vrIIYVuoYesI72OdOiCAd32a7yGJKs2i3vh5cySZYrwZ2IyRs7IXAzJ-eFA/exec";
 
-        const STEPS_E_BIDDING = ["อนุมัติงบ", "TOR", "ราคากลาง", "ร่างประกาศ", "ประกาศเชิญชวน", "พิจารณาผล", "อุทธรณ์", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"];
-        const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", "เจรจาผู้ค้า-อนุมัติสั่งจ้าง", "จัดทำค้ำ/เตรียมลงนาม", "ลงนาม"];
+        const STEPS_E_BIDDING = ["อนุมัติงบ", "TOR", "ราคากลาง", "ร่างประกาศ", "ประกาศเชิญชวน", "พิจารณาผล", "อุทธรณ์", "จัดทำค้ำ/เตรียมลงนาม", "ลงนามสัญญาแล้ว"];
+        const STEPS_SPECIFIC = ["อนุมัติงบ", "TOR", "ราคากลาง", "รายงานขอซื้อ/จ้าง", "เจรจาผู้ค้า-อนุมัติสั่งจ้าง", "จัดทำค้ำ/เตรียมลงนาม", "ลงนามสัญญาแล้ว"];
 
         const DEFAULT_DURATIONS_E_BIDDING = {
             "อนุมัติงบ": { days: 7, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
             "ราคากลาง": { days: 30, dayType: "วันทำการ" }, "ร่างประกาศ": { days: 10, dayType: "วันทำการ" },
             "ประกาศเชิญชวน": { days: 12, dayType: "วันปฏิทิน" }, "พิจารณาผล": { days: 30, dayType: "วันทำการ" },
-            "อุทธรณ์": { days: 7, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" }, "ลงนาม": { days: 1, dayType: "วันทำการ" }
+            "อุทธรณ์": { days: 7, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" }, "ลงนามสัญญาแล้ว": { days: 1, dayType: "วันทำการ" }
         };
 
         const DEFAULT_DURATIONS_SPECIFIC = {
             "อนุมัติงบ": { days: 7, dayType: "วันทำการ" }, "TOR": { days: 30, dayType: "วันทำการ" },
             "ราคากลาง": { days: 30, dayType: "วันทำการ" }, "รายงานขอซื้อ/จ้าง": { days: 3, dayType: "วันทำการ" },
-            "เจรจาผู้ค้า-อนุมัติสั่งจ้าง": { days: 5, dayType: "วันทำการ" }, "จัดทำค้ำเตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" },
-            "ลงนาม": { days: 1, dayType: "วันทำการ" }
+            "เจรจาผู้ค้า-อนุมัติสั่งจ้าง": { days: 5, dayType: "วันทำการ" }, "จัดทำค้ำ/เตรียมลงนาม": { days: 7, dayType: "วันปฏิทิน" },
+            "ลงนามสัญญาแล้ว": { days: 1, dayType: "วันทำการ" }
         };
 
         const DEFAULT_THAI_HOLIDAYS = new Set([
@@ -371,6 +377,7 @@
             loadFromLocalStorage();
             loadCustomHolidays();
             populateYearFilter();
+            populateStepFilter();
             updateDashboard();
             if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
                 fetchDataFromGoogleSheet();
@@ -604,19 +611,16 @@
             }
 
             // 3. Calculate Adjusted Forecast (ปรับคาดการณ์)
-            // Rule: Up to latest completed step, uses planDates. After latest completed step, chains from actual date of latest completed step + subsequent step durations.
             let adjustedDates = [];
             if (latestActualIdx === -1) {
                 adjustedDates = planDates.map(d => new Date(d.getTime()));
             } else {
                 let anchorDateStr = actualDates[steps[latestActualIdx]];
                 
-                // For steps up to latestActualIdx, use planDates (duration-based from start, so duration changes update it)
                 for (let i = 0; i <= latestActualIdx; i++) {
                     adjustedDates.push(new Date(planDates[i].getTime()));
                 }
 
-                // For steps after latestActualIdx, chain from anchorDate + step durations
                 let runningAdjDate = new Date(anchorDateStr);
                 if (isNaN(runningAdjDate.getTime())) runningAdjDate = new Date(currentBaseDate.getTime());
                 runningAdjDate.setHours(0,0,0,0);
@@ -658,7 +662,7 @@
         function handleFormSubmit(event) {
             event.preventDefault();
             if (document.getElementById('auth-password').value !== "1698") {
-                showAlert("รหัสผ่านไม่ถูกต้อง", "กรุณากรอกรหัสผ่านยืนยันให้ถูกต้อง (xxxx)", "error");
+                showAlert("รหัสผ่านไม่ถูกต้อง", "กรุณากรอกรหัสผ่านยืนยันให้ถูกต้อง (1698)", "error");
                 return;
             }
             const proc = document.getElementById('proj-procurement').value;
@@ -715,6 +719,7 @@
             saveToLocalStorage();
             closeProjectModal();
             populateYearFilter();
+            populateStepFilter();
             updateDashboard();
 
             if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
@@ -725,10 +730,11 @@
         }
 
         function deleteProject(id) {
-            if (prompt("กรุณากรอกรหัสผ่าน (xxxx) เพื่อยืนยันการลบ:") !== "1698") return;
+            if (prompt("กรุณากรอกรหัสผ่าน (1698) เพื่อยืนยันการลบ:") !== "1698") return;
             projects = projects.filter(p => String(p.id) !== String(id));
             saveToLocalStorage();
             populateYearFilter();
+            populateStepFilter();
             updateDashboard();
             if (googleScriptUrl && !googleScriptUrl.includes("YOUR_DEPLOY_URL_HERE")) {
                 sendDataToGoogleSheet({ action: "delete", id: String(id) });
@@ -748,6 +754,23 @@
                 }
             });
             yearSelect.value = currentVal;
+            populateStepFilter();
+        }
+
+        function populateStepFilter() {
+            const stepSelect = document.getElementById('filter-current-step');
+            if (!stepSelect) return;
+            const currentVal = stepSelect.value;
+            stepSelect.innerHTML = '<option value="">ทั้งหมด</option>';
+            const allSteps = new Set([...STEPS_E_BIDDING, ...STEPS_SPECIFIC, ...projects.map(p => p.currentStep)]);
+            Array.from(allSteps).forEach(s => {
+                if (s) {
+                    const opt = document.createElement('option');
+                    opt.value = s; opt.textContent = s;
+                    stepSelect.appendChild(opt);
+                }
+            });
+            stepSelect.value = currentVal;
         }
 
         function applyFilters() { updateDashboard(); }
@@ -757,6 +780,7 @@
             document.getElementById('filter-budget-type').value = "";
             document.getElementById('filter-work-type').value = "";
             document.getElementById('filter-procurement').value = "";
+            document.getElementById('filter-current-step').value = "";
             updateDashboard();
         }
         function toggleSidebar() {
@@ -770,6 +794,7 @@
             const fBudgetType = document.getElementById('filter-budget-type').value;
             const fWorkType = document.getElementById('filter-work-type').value;
             const fProc = document.getElementById('filter-procurement').value;
+            const fCurrentStep = document.getElementById('filter-current-step').value;
 
             let filtered = projects.filter(p => {
                 const matchSearch = String(p.id || "").toLowerCase().includes(search) || String(p.name || "").toLowerCase().includes(search);
@@ -777,7 +802,8 @@
                 const matchBudgetType = !fBudgetType || p.budgetType === fBudgetType;
                 const matchWorkType = !fWorkType || p.workType === fWorkType;
                 const matchProc = !fProc || p.procurement === fProc;
-                return matchSearch && matchYear && matchBudgetType && matchWorkType && matchProc;
+                const matchCurrentStep = !fCurrentStep || p.currentStep === fCurrentStep;
+                return matchSearch && matchYear && matchBudgetType && matchWorkType && matchProc && matchCurrentStep;
             });
 
             document.getElementById('kpi-total').innerText = projects.length;
@@ -863,6 +889,7 @@
 
                     saveToLocalStorage();
                     populateYearFilter();
+                    populateStepFilter();
                     updateDashboard();
                     syncStatus.innerHTML = `<span style="width: 8px; height: 8px; border-radius: 50%; background: #34d399;"></span><span>เชื่อมต่อ Google Sheets แล้ว</span>`;
                 })

@@ -131,6 +131,8 @@
                 <label>ขั้นตอนการทำงาน (ปัจจุบัน)</label>
                 <select id="filter-current-step" onchange="applyFilters()">
                     <option value="">ทั้งหมด</option>
+                    <option value="ยังไม่ลงนามสัญญา">ยังไม่ลงนามสัญญา</option>
+                    <option value="ลงนามสัญญาแล้ว">ลงนามสัญญาแล้ว</option>
                 </select>
             </div>
         </aside>
@@ -761,15 +763,11 @@
             const stepSelect = document.getElementById('filter-current-step');
             if (!stepSelect) return;
             const currentVal = stepSelect.value;
-            stepSelect.innerHTML = '<option value="">ทั้งหมด</option>';
-            const allSteps = new Set([...STEPS_E_BIDDING, ...STEPS_SPECIFIC, ...projects.map(p => p.currentStep)]);
-            Array.from(allSteps).forEach(s => {
-                if (s) {
-                    const opt = document.createElement('option');
-                    opt.value = s; opt.textContent = s.replace(/ลงนาม/g, '');
-                    stepSelect.appendChild(opt);
-                }
-            });
+            stepSelect.innerHTML = `
+                <option value="">ทั้งหมด</option>
+                <option value="ยังไม่ลงนามสัญญา">ยังไม่ลงนามสัญญา</option>
+                <option value="ลงนามสัญญาแล้ว">ลงนามสัญญาแล้ว</option>
+            `;
             stepSelect.value = currentVal;
         }
 
@@ -802,12 +800,19 @@
                 const matchBudgetType = !fBudgetType || p.budgetType === fBudgetType;
                 const matchWorkType = !fWorkType || p.workType === fWorkType;
                 const matchProc = !fProc || p.procurement === fProc;
-                const matchCurrentStep = !fCurrentStep || p.currentStep === fCurrentStep;
+                
+                let matchCurrentStep = true;
+                if (fCurrentStep === "ยังไม่ลงนามสัญญา") {
+                    matchCurrentStep = p.currentStep !== "ลงนามสัญญาแล้ว";
+                } else if (fCurrentStep === "ลงนามสัญญาแล้ว") {
+                    matchCurrentStep = p.currentStep === "ลงนามสัญญาแล้ว";
+                }
+
                 return matchSearch && matchYear && matchBudgetType && matchWorkType && matchProc && matchCurrentStep;
             });
 
-            document.getElementById('kpi-total').innerText = projects.length;
-            document.getElementById('kpi-budget').innerText = projects.reduce((acc, curr) => acc + (parseFloat(curr.budget) || 0), 0).toLocaleString('th-TH', { minimumFractionDigits: 2 });
+            document.getElementById('kpi-total').innerText = filtered.length;
+            document.getElementById('kpi-budget').innerText = filtered.reduce((acc, curr) => acc + (parseFloat(curr.budget) || 0), 0).toLocaleString('th-TH', { minimumFractionDigits: 2 });
 
             const matrixContainer = document.getElementById('projects-matrix-container');
             matrixContainer.innerHTML = "";
